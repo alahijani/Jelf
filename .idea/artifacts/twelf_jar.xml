@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="twelf:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/twelf_jar</output-path>
+    <root id="archive" name="twelf.jar">
+      <element id="module-output" name="twelf" />
+    </root>
+  </artifact>
+</component>

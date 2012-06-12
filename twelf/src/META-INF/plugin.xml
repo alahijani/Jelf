@@ -1,0 +1,61 @@
+<idea-plugin version="2">
+    <name>Twelf Plugin</name>
+    <description>Adds Twelf language support</description>
+    <version>1.0</version>
+    <vendor>Ali Lahijani</vendor>
+    <idea-version since-build="8000"/>
+
+    <application-components>
+        <component>
+            <implementation-class>org.alahijani.lf.TwelfLoader</implementation-class>
+        </component>
+    </application-components>
+
+    <project-components>
+        <!-- Add your project components here -->
+    </project-components>
+
+    <actions>
+        <action id="TriggerBreakpoint" class="org.alahijani.lf.TriggerBreakpoint" text="Trigger Breakpoint"
+                description="Trigger Breakpoint">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+            <add-to-group group-id="FileMenu" anchor="first"/>
+        </action>
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceInterface="org.alahijani.lf.psi.TwelfPsiElementFactory"
+                        serviceImplementation="org.alahijani.lf.psi.TwelfPsiElementFactory"/>
+
+        <fileTypeFactory implementation="org.alahijani.lf.fileTypes.TwelfFileTypeFactory"/>
+        <syntaxHighlighter key="Twelf" implementationClass="org.alahijani.lf.TwelfSyntaxHighlighter"/>
+
+        <lang.parserDefinition language="Twelf" implementationClass="org.alahijani.lf.parser.TwelfParserDefinition"/>
+        <lang.braceMatcher language="Twelf" implementationClass="org.alahijani.lf.editor.TwelfBraceMatcher"/>
+        <lang.commenter language="Twelf" implementationClass="org.alahijani.lf.editor.TwelfCommenter"/>
+        <lang.psiStructureViewFactory language="Twelf" implementationClass="org.alahijani.lf.structure.TwelfStructureViewFactory"/>
+        <lang.namesValidator language="Twelf" implementationClass="org.alahijani.lf.lexer.TwelfNamesValidator" />
+        <!--<lang.findUsagesProvider language="Twelf" implementationClass="TwelfFindUsagesProvider" />-->
+        <!--<lang.elementManipulator forClass="org.alahijani.lf.psi.api.LfIdentifierReference" implementationClass="org.alahijani.lf.psi.xref.LfIdentifierReferenceManipulator"/>-->
+        <!--<lang.smartEnterProcessor language="Twelf" implementationClass="org.alahijani.lf.lang.completion.smartEnter.TwelfSmartEnterProcessor"/>-->
+        <!--<lang.refactoringSupport language="Twelf" implementationClass="org.alahijani.lf.TwelfRefactoringSupportProvider" />-->
+        <!--<lang.formatter language="Twelf" implementationClass="org.alahijani.lf.formatter.TwelfFormattingModelBuilder"/>-->
+        <annotator language="Twelf" implementationClass="org.alahijani.lf.annotator.TwelfAnnotator" />
+
+        <!--<compiler implementation="org.alahijani.lf.compiler.TwelfCompiler"/>-->
+        <completion.contributor language="Twelf" implementationClass="org.alahijani.lf.completion.TwelfCompletionContributor"/>
+        <!--<completion.contributor language="Twelf" implementationClass="org.alahijani.lf.completion.TwelfSmartCompletionContributor"/>-->
+        <!--<gotoSymbolContributor implementation="org.alahijani.lf.gotoclass.TwelfGoToSymbolContributor"/>-->
+        <!--<enterHandlerDelegate implementation="org.alahijani.lf.lang.editor.actions.TwelfEnterHandler" order="after EnterBetweenBracesHandler"/>-->
+        <!--<renameHandler implementation="org.alahijani.lf.refactoring.rename.PropertyRenameHandler"/>-->
+        <!--<renamePsiElementProcessor implementation="org.alahijani.lf.refactoring.rename.RenameTwelfPropertyProcessor" order="first"/>-->
+        <!--<psi.referenceContributor implementation="org.alahijani.lf.lang.resolve.providers.TwelfReferenceContributor"/>-->
+        <!--<java.elementFinder implementation="org.alahijani.lf.lang.psi.impl.javaView.TwelfClassFinder"/>-->
+
+        <codeInsight.parameterInfo language="Twelf"
+                                   implementationClass="org.alahijani.lf.params.TwelfParameterInfoHandler"/>
+
+        <stubIndex implementation="org.alahijani.lf.psi.stubs.index.LfDeclarationIndex"/>
+
+    </extensions>
+</idea-plugin>
