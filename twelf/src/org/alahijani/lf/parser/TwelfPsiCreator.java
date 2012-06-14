@@ -24,6 +24,9 @@ public class TwelfPsiCreator implements TwelfTokenType {
         if (elem == TwelfElementType.NAME_DIRECTIVE_STATEMENT) {
             return new NameDirectiveImpl(node);
         }
+        if (elem == TwelfElementType.FIXITY_DIRECTIVE_STATEMENT) {
+            return new TwelfDirectiveImpl(node);
+        }
         if (elem == TwelfElementType.DIRECTIVE_STATEMENT) {
             return new TwelfDirectiveImpl(node);
         }
@@ -37,7 +40,10 @@ public class TwelfPsiCreator implements TwelfTokenType {
             return new ParenthesizedExpressionImpl(node);
         }
         if (elem == TwelfElementType.APPLICATION) {
-            return new ApplicationExpressionImpl(node);
+            return new PrefixApplicationExpressionImpl(node);
+        }
+        if (elem == TwelfElementType.POSTFIX_APPLICATION) {
+            return new PostfixApplicationExpressionImpl(node);
         }
         if (elem == TwelfElementType.TYPED_TERM) {
             return new TypedExpressionImpl(node);

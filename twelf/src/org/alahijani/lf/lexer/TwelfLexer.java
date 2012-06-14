@@ -63,6 +63,9 @@ public class TwelfLexer extends AbstractCustomLexer {
     }
 
     public static boolean isUppercaseIdentifier(String text) {
+        if (text.isEmpty()) {
+            return false;
+        }
         char ch = text.charAt(0);
         return isUppercase(ch);
     }
