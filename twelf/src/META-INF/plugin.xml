@@ -12,7 +12,9 @@
     </application-components>
 
     <project-components>
-        <!-- Add your project components here -->
+        <component>
+            <implementation-class>org.alahijani.lf.TwelfProject</implementation-class>
+        </component>
     </project-components>
 
     <actions>
@@ -54,6 +56,7 @@
 
         <codeInsight.parameterInfo language="Twelf"
                                    implementationClass="org.alahijani.lf.params.TwelfParameterInfoHandler"/>
+        <!--<semContributor implementation=""/>-->
 
         <stubIndex implementation="org.alahijani.lf.psi.stubs.index.LfDeclarationIndex"/>
 

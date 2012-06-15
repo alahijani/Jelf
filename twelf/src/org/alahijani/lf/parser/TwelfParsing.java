@@ -331,7 +331,7 @@ public class TwelfParsing {
                 builder.advanceLexer();
                 unknownDirective.error(TwelfBundle.message("error.unknown.directive.0", directive));
             }
-            dot(true);
+            dot(false);
             statement.done(TwelfElementType.DIRECTIVE_STATEMENT);
         }
 
@@ -457,19 +457,30 @@ public class TwelfParsing {
     }
 
     private void dot() {
-        dot(false);
+        dot(true);
     }
 
-    private void dot(boolean ignoreUnexpected) {
-        if (builder.getTokenType() != DOT) {
-            if (!ignoreUnexpected) {
-                builder.error(TwelfBundle.message("expected.dot"));
-            }
-            while (!builder.eof() && builder.getTokenType() != DOT) {
+    private void dot(boolean errorUnexpected) {
+        do {
+            if (builder.getTokenType() == DOT) {
                 builder.advanceLexer();
+                return;
             }
-        }
-        builder.advanceLexer(); // eat the DOT
+            if (builder.eof()) {
+                builder.error(TwelfBundle.message("expected.dot"));
+                return;
+            }
+
+            // advance the lexer and issue error if required
+            if (!errorUnexpected) {
+                builder.advanceLexer();
+            } else {
+                PsiBuilder.Marker marker = builder.mark();
+                builder.advanceLexer();
+                marker.error(TwelfBundle.message("unexpected.token", builder.getTokenText()));
+                errorUnexpected = false;    // just one error is enough
+            }
+        } while (true);
     }
 
     private void eatElement(IElementType elementType) {
