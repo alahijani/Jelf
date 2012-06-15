@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public abstract class TwelfStatementImpl extends TwelfElementImpl implements TwelfStatement {
 
-    private Map<String,LfDeclaration> globalVariablesBefore;
+//    private Map<String,LfDeclaration> globalVariablesBefore;
 
     public TwelfStatementImpl(@NotNull ASTNode node) {
         super(node);
@@ -28,11 +28,12 @@ public abstract class TwelfStatementImpl extends TwelfElementImpl implements Twe
     }
 
     public Map<String, LfDeclaration> getGlobalVariablesBefore() {
-        if (globalVariablesBefore == null) {
-            globalVariablesBefore = findGlobalVariablesBefore();
-        }
+//        if (globalVariablesBefore == null) {
+//            globalVariablesBefore = findGlobalVariablesBefore();
+//        }
+//        return globalVariablesBefore;
 
-        return globalVariablesBefore;
+        return findGlobalVariablesBefore();
     }
 
     private Map<String, LfDeclaration> findGlobalVariablesBefore() {
