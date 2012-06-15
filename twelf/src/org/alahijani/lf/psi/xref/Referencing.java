@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,28 +60,22 @@ public class Referencing {
                  * should also check TwelfStatement, so no continue
                  */
             }
-            if (element instanceof TwelfStatement) break;
+            if (element instanceof TwelfStatement) {
+                Map<String, LfDeclaration> globals = ((TwelfStatement) element).getGlobalVariablesBefore();
+                LfDeclaration global = globals.get(name);
+                if (global != null) {
+                    return global;
+                }
+
+                if (metaVariableBinder != null) {
+                    if (TwelfLexer.isUppercaseIdentifier(name)) {
+                        return metaVariableBinder.declareMeta(name);
+                    }
+                }
+            }
             if (element == null) return null;
         }
 
-        for (; ; element = element.getPrevSibling()) {
-
-            if (element == null) break;
-            if (element instanceof GlobalVariableBinder) {
-                LfDeclaration declaration = ((GlobalVariableBinder) element).getDeclaration();
-                if (declaration != beingDeclared && name.equals(declaration.getName())) {
-                    return declaration;
-                }
-            }
-        }
-
-        if (metaVariableBinder != null) {
-            if (TwelfLexer.isUppercaseIdentifier(name)) {
-                return metaVariableBinder.declareMeta(name);
-            }
-        }
-
-        return null;
     }
 
     public static void lookup(PsiElement element, CompletionResultSet result) {
@@ -117,7 +110,7 @@ public class Referencing {
                  */
             }
             if (element instanceof TwelfStatement) {
-                Map<String, LfDeclaration> globals = getGlobalVariablesBefore((TwelfStatement) element);
+                Map<String, LfDeclaration> globals = ((TwelfStatement) element).getGlobalVariablesBefore();
 
                 if (metaVariableBinder != null) {
                     Set<String> metaCandidates = getMetaCandidates(metaVariableBinder);
@@ -159,21 +152,6 @@ public class Referencing {
             }
         });
         return metaCandidates;
-    }
-
-    private static Map<String, LfDeclaration> getGlobalVariablesBefore(TwelfStatement statement) {
-        Map<String, LfDeclaration> result = new LinkedHashMap<String, LfDeclaration>();
-
-        PsiElement element = statement;
-        do {
-            element = element.getPrevSibling();
-            if (element instanceof GlobalVariableBinder) {
-                LfDeclaration declaration = ((GlobalVariableBinder) element).getDeclaration();
-                result.put(declaration.getName(), declaration);
-            }
-
-        } while (element != null);
-        return result;
     }
 
     private static final CompletionSorter ByReverseOrderOfDeclaration =
