@@ -72,7 +72,7 @@ public class TwelfParsing {
         }
 
         PsiBuilder.Marker declaration = builder.mark();
-        ParserUtils.eatElement(builder, TwelfElementType.IDENTIFIER);
+        eatElement(TwelfElementType.IDENTIFIER);
 
         boolean colonOrEq = false;
         if (builder.getTokenType() == COLON) {
@@ -193,7 +193,7 @@ public class TwelfParsing {
     private boolean primaryTerm() {
 
         if (KEYWORD == builder.getTokenType() && KEYWORD_TYPE.equals(builder.getTokenText())) {
-            ParserUtils.eatElement(builder, TwelfElementType.TYPE_KEYWORD);
+            eatElement(TwelfElementType.TYPE_KEYWORD);
             return true;
         }
 
@@ -202,7 +202,7 @@ public class TwelfParsing {
         }
 
         if (builder.getTokenType() == STRING_LITERAL) {
-            ParserUtils.eatElement(builder, TwelfElementType.STRING_EXPRESSION);
+            eatElement(TwelfElementType.STRING_EXPRESSION);
             return true;
         }
 
@@ -229,7 +229,7 @@ public class TwelfParsing {
         String text = builder.getTokenText();
 
         PsiBuilder.Marker idReference = builder.mark();
-        ParserUtils.eatElement(builder, TwelfElementType.IDENTIFIER);
+        eatElement(TwelfElementType.IDENTIFIER);
         idReference.done(TwelfElementType.REFERENCE_EXPRESSION);
 
         return text;
@@ -244,7 +244,7 @@ public class TwelfParsing {
 
         if (builder.getTokenType() == IDENT) {
             PsiBuilder.Marker declaration = builder.mark();
-            ParserUtils.eatElement(builder, TwelfElementType.IDENTIFIER);
+            eatElement(TwelfElementType.IDENTIFIER);
             if (builder.getTokenType() == COLON) {
                 builder.advanceLexer();
                 if (!term()) {
@@ -373,6 +373,10 @@ public class TwelfParsing {
             } else {
                 builder.error(TwelfBundle.message("expected.identifier.uppercase"));
             }
+
+            if (builder.getTokenType() == IDENT) {      // optional second identifier
+                eatElement(TwelfElementType.IDENTIFIER);
+            }
         } else {
             builder.error(TwelfBundle.message("expected.identifier"));
         }
@@ -466,6 +470,12 @@ public class TwelfParsing {
             }
         }
         builder.advanceLexer(); // eat the DOT
+    }
+
+    private void eatElement(IElementType elementType) {
+        PsiBuilder.Marker marker = builder.mark();
+        builder.advanceLexer();
+        marker.done(elementType);
     }
 
 }

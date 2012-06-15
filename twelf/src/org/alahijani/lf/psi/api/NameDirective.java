@@ -7,4 +7,6 @@ public interface NameDirective extends TwelfStatement {
     LfIdentifierReference getForType();
 
     LfIdentifier getNameIdentifier();
+
+    LfIdentifier getSecondNameIdentifier();
 }

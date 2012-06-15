@@ -27,7 +27,12 @@ public class NameDirectiveImpl extends TwelfDirectiveImpl implements NameDirecti
     }
 
     public LfIdentifier getNameIdentifier() {
-        return findChildByClass(LfIdentifier.class);
+        return findChildrenByClass(LfIdentifier.class)[0];
+    }
+
+    public LfIdentifier getSecondNameIdentifier() {
+        LfIdentifier[] childrenByClass = findChildrenByClass(LfIdentifier.class);
+        return childrenByClass.length > 1 ? childrenByClass[1] : null;
     }
 
 }
