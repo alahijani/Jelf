@@ -22,17 +22,11 @@ public class PostfixApplicationExpressionImpl extends TwelfElementImpl implement
 
     public LfTerm getFunction() {
         LfTerm[] terms = findChildrenByClass(LfTerm.class);
-        if (terms.length == 2) {
-            return terms[1];
-        }
-        return null;
+        return terms.length > 1 ? terms[1] : null;
     }
 
     public LfTerm getArgument() {
         LfTerm[] terms = findChildrenByClass(LfTerm.class);
-        if (terms.length == 2) {
-            return terms[0];
-        }
-        return null;
+        return terms.length > 0 ? terms[0] : null;
     }
 }

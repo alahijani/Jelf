@@ -20,11 +20,13 @@ public class FromArrowTypeImpl extends ArrowTypeImpl implements FromArrowType {
     }
 
     public LfTerm getParameterType() {
-        return findChildrenByClass(LfTerm.class)[1];
+        LfTerm[] children = findChildrenByClass(LfTerm.class);
+        return children.length > 1 ? children[1] : null;
     }
 
     public LfTerm getReturnType() {
-        return findChildrenByClass(LfTerm.class)[0];
+        LfTerm[] children = findChildrenByClass(LfTerm.class);
+        return children.length > 0 ? children[0] : null;
     }
 }
 
