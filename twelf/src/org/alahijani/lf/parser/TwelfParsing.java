@@ -33,12 +33,7 @@ public class TwelfParsing {
         Operation.Operator operator = operatorMap.get(text);
 
         if (operator == null && !builder.eof()) {
-            IElementType tokenType = builder.getTokenType();
-            if (tokenType != DOT &&
-                    tokenType != RPARENTH &&
-                    tokenType != RBRACE &&
-                    tokenType != RBRACKET &&
-                    !(tokenType == KEYWORD && KEYWORD_EQ.equals(text))) {
+            if (APPLICATION_CANDIDATE.contains(builder.getTokenType())) {
                 operator = Operation.juxOp;
             }
         }
@@ -50,14 +45,14 @@ public class TwelfParsing {
         this.builder = builder;
     }
 
-    public boolean file() {
+    public boolean document() {
         while (!builder.eof()) {
             statement();
         }
         return true;
     }
 
-    public boolean statement() {
+    private boolean statement() {
 
         if (builder.getTokenType() == IDENT) {
             declarationStatement();
@@ -122,17 +117,18 @@ public class TwelfParsing {
         Operation.Operator op = getOperator();
         if (op == null || op.getPrecedence() < minPrecedence) {
             lhs.drop();
-            return lhs;      // todo: just have been dropped!
+            return lhs;      // todo: just has been dropped!
         }
 
         while (true) {
-            if (op != Operation.juxOp) {
-                builder.advanceLexer();
-            }
 
             if (op.getElementType() == USER_DEFINED_OPERATOR) {
+                String id = idReference();
+                // assert id != null; todo
                 lhs.done(TwelfElementType.POSTFIX_APPLICATION);
                 lhs = lhs.precede();
+            } else if (op != Operation.juxOp) {
+                builder.advanceLexer();
             }
 
             PsiBuilder.Marker rhs = builder.mark();
@@ -172,24 +168,24 @@ public class TwelfParsing {
          *      a right-associative operator whose precedence is equal to op's
          */
         while (true) {
-            Operation.Operator lookahead = getOperator();
-            if (!(lookahead instanceof Operation.Infix)) {
+            Operation.Operator op = getOperator();
+            if (!(op instanceof Operation.Infix)) {
                 rhs.drop();
                 break; // todo
             }
 
-            if (lookahead.getPrecedence() < minPrecedence) {
+            if (op.getPrecedence() < minPrecedence) {
                 rhs.drop();
                 break;
             }
-            if (lookahead.getPrecedence() == minPrecedence) {
-                if (((Operation.Infix) lookahead).getAssociativity() != Operation.Associativity.Right) {
+            if (op.getPrecedence() == minPrecedence) {
+                if (((Operation.Infix) op).getAssociativity() != Operation.Associativity.Right) {
                     rhs.drop();
                     break;
                 }
             }
 
-            rhs = termL(rhs, lookahead.getPrecedence());
+            rhs = termL(rhs, op.getPrecedence());
             rhs = rhs.precede();
         }
     }
@@ -202,7 +198,7 @@ public class TwelfParsing {
         }
 
         if (builder.getTokenType() == IDENT) {
-            return idReference();
+            return idReference() != null;
         }
 
         if (builder.getTokenType() == STRING_LITERAL) {
@@ -225,15 +221,18 @@ public class TwelfParsing {
         return false;
     }
 
-    private boolean idReference() {
+    private String idReference() {
         if (builder.getTokenType() != IDENT) {
-            return false;
+            return null;
         }
+
+        String text = builder.getTokenText();
 
         PsiBuilder.Marker idReference = builder.mark();
         ParserUtils.eatElement(builder, TwelfElementType.IDENTIFIER);
         idReference.done(TwelfElementType.REFERENCE_EXPRESSION);
-        return true;
+
+        return text;
     }
 
     private boolean binderTerm(IElementType lBracket,
@@ -243,8 +242,8 @@ public class TwelfParsing {
         PsiBuilder.Marker bracketTerm = builder.mark();
         builder.advanceLexer();
 
-        PsiBuilder.Marker paramDecl = builder.mark();
         if (builder.getTokenType() == IDENT) {
+            PsiBuilder.Marker declaration = builder.mark();
             ParserUtils.eatElement(builder, TwelfElementType.IDENTIFIER);
             if (builder.getTokenType() == COLON) {
                 builder.advanceLexer();
@@ -252,7 +251,8 @@ public class TwelfParsing {
                     builder.error(TwelfBundle.message("expected.type"));
                 }
             }
-            paramDecl.done(TwelfElementType.LF_DECLARATION);
+            declaration.done(TwelfElementType.LF_DECLARATION);
+
             if (builder.getTokenType() == rBracket) {
                 builder.advanceLexer();
             } else {
@@ -260,6 +260,21 @@ public class TwelfParsing {
             }
         } else {
             builder.error(TwelfBundle.message("expected.identifier"));
+
+            while (true) {
+                if (builder.getTokenType() == rBracket) {
+                    builder.advanceLexer();
+                    break;
+                }
+
+                if (builder.eof() || builder.getTokenType() == DOT) {
+                    builder.error(rBracketExpected);
+                    break;
+                }
+
+                builder.advanceLexer();
+            }
+
         }
 
         if (!term()) {
@@ -270,12 +285,11 @@ public class TwelfParsing {
         return true;
     }
 
-    public boolean parenthesizedTerm() {
+    private boolean parenthesizedTerm() {
         PsiBuilder.Marker parenthesized = builder.mark();
         ParserUtils.getToken(builder, LPARENTH);
         if (!term()) {
-            parenthesized.rollbackTo();
-            return false;
+            builder.error(TwelfBundle.message("expected.term"));
         }
         if (!ParserUtils.getToken(builder, RPARENTH, TwelfBundle.message("expected.rParen"))) {
             builder.error(TwelfBundle.message("expected.rParen"));
@@ -296,7 +310,7 @@ public class TwelfParsing {
         statement.done(TwelfElementType.LF_DECLARATION_STATEMENT);
     }
 
-    public boolean directive() {
+    private boolean directive() {
         if (builder.getTokenType() != DIRECTIVE) {
             return false;
         }
@@ -346,7 +360,7 @@ public class TwelfParsing {
         }
         builder.advanceLexer();
 
-        if (idReference()) {
+        if (idReference() != null) {
             if (builder.getTokenType() == IDENT) {
                 PsiBuilder.Marker nameId = builder.mark();
                 if (TwelfLexer.isUppercaseIdentifier(builder.getTokenText())) {
@@ -369,19 +383,22 @@ public class TwelfParsing {
 
     private boolean fixityDirective() {
         String directive = builder.getTokenText();
+
+        Operation.Associativity associativity = null;
         if (D_PREFIX.equals(directive) || D_POSTFIX.equals(directive)) {
             builder.advanceLexer();
         } else if (D_INFIX.equals(directive)) {
             builder.advanceLexer();
-            Operation.Associativity associativity = associativity();
+            associativity = associativity();
         } else {
             return false;
         }
 
         Integer precedence = precedence();
-        if (idReference()) {
-            if (precedence != null) {
-                new Operation.Operator(precedence, USER_DEFINED_OPERATOR);
+        String id = idReference();
+        if (id != null) {
+            if (precedence != null && associativity != null) {
+                operatorMap.put(id, new Operation.Infix(precedence, associativity, USER_DEFINED_OPERATOR));
             }
         } else {
             builder.error(TwelfBundle.message("expected.identifier"));
@@ -393,7 +410,7 @@ public class TwelfParsing {
 
     private Operation.Associativity associativity() {
         if (builder.getTokenType() != IDENT) {
-            builder.error(TwelfBundle.message("expected.left.or.right"));
+            builder.error(TwelfBundle.message("expected.associativity"));
             return null;
         }
 
@@ -406,15 +423,18 @@ public class TwelfParsing {
         } else if ("right".equals(text)) {
             associativity.done(TwelfElementType.ASSOCIATIVITY);
             return Operation.Associativity.Right;
+        } else if ("none".equals(text)) {                           // todo implement none
+            associativity.done(TwelfElementType.ASSOCIATIVITY);
+            return null;
         } else {
-            associativity.error(TwelfBundle.message("expected.left.or.right"));
+            associativity.error(TwelfBundle.message("expected.associativity"));
             return null;
         }
     }
 
     private Integer precedence() {
         if (builder.getTokenType() != IDENT) {
-            builder.error(TwelfBundle.message("expected.left.or.right"));
+            builder.error(TwelfBundle.message("expected.integer"));
             return null;
         }
 

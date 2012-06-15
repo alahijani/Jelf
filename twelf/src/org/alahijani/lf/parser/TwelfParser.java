@@ -20,7 +20,7 @@ public class TwelfParser implements PsiParser {
 
         PsiBuilder.Marker document = builder.mark();
 
-        new TwelfParsing(builder).file();
+        new TwelfParsing(builder).document();
 
         document.done(root);
         return builder.getTreeBuilt();

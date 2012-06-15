@@ -40,11 +40,7 @@ public interface TwelfTokenType extends TokenType {
 
     IElementType PLACEHOLDER = new ITwelfElementType("PLACEHOLDER");
 
-    // needed ?
-//    IElementType COMMA                = CustomHighlighterTokenType.PUNCTUATION;
-    //new ITwelfElementType("COMMA");
-//    IElementType SEMICOLON                = CustomHighlighterTokenType.PUNCTUATION;
-    //new ITwelfElementType("SEMICOLON");
+    TokenSet APPLICATION_CANDIDATE = TokenSet.create(IDENT, LPARENTH, LBRACKET, STRING_LITERAL, INTEGER_LITERAL, RATIONAL_LITERAL);
 
     TokenSet OPERATION_BIT_SET = TokenSet.create();
 
