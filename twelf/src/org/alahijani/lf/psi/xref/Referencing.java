@@ -28,6 +28,7 @@ public class Referencing {
         if (TwelfLexer.isAnonymousIdentifier(name)) {
             return null;    // TODO implement term reconstruction
         }
+        boolean isUppercase = TwelfLexer.isUppercaseIdentifier(name);
 
         MetaVariableBinder metaVariableBinder = null;
         LfDeclaration beingDeclared = null;
@@ -47,14 +48,11 @@ public class Referencing {
                 beingDeclared = (LfDeclaration) element;
                 continue;
             }
-            if (element instanceof MetaVariableBinder) {
+            if (isUppercase && element instanceof MetaVariableBinder) {
                 metaVariableBinder = (MetaVariableBinder) element;
-                LfDeclaration[] metaVariables = metaVariableBinder.getMetaVariables();
-                for (int i = metaVariables.length - 1; i >= 0; i--) {
-                    LfDeclaration declaration = metaVariables[i];
-                    if (name.equals(declaration.getName())) {
-                        return declaration;
-                    }
+                LfDeclaration meta = metaVariableBinder.getMeta(name);
+                if (meta != null) {
+                    return meta;
                 }
                 /**
                  * should also check TwelfStatement, so no continue
@@ -68,9 +66,8 @@ public class Referencing {
                 }
 
                 if (metaVariableBinder != null) {
-                    if (TwelfLexer.isUppercaseIdentifier(name)) {
-                        return metaVariableBinder.declareMeta(name);
-                    }
+                    // assert isUppercase;
+                    return metaVariableBinder.declareMeta(name);
                 }
             }
             if (element == null) return null;

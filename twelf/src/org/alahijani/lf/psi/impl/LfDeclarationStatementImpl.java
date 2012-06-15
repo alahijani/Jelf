@@ -8,24 +8,28 @@ import org.alahijani.lf.psi.light.LightLfDeclaration;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Ali Lahijani
  */
 public class LfDeclarationStatementImpl extends TwelfStatementImpl implements LfDeclarationStatement {
 
-    private List<LfDeclaration> metaVariables = new ArrayList<LfDeclaration>();
+    private Map<String, LfDeclaration> metaVariables = new LinkedHashMap<String, LfDeclaration>();
 
     public LfDeclarationStatementImpl(@NotNull ASTNode node) {
         super(node);
     }
 
+    public LfDeclaration getMeta(String name) {
+        return metaVariables.get(name);
+    }
+
     public LfDeclaration declareMeta(String name) {
         LfDeclaration declaration = LightLfDeclaration.declareMeta(this, name);
         // add(declaration);
-        metaVariables.add(declaration);
+        metaVariables.put(name, declaration);
         return declaration;
     }
 
@@ -42,7 +46,4 @@ public class LfDeclarationStatementImpl extends TwelfStatementImpl implements Lf
         return TwelfIcons.LF_DECLARATION_STATEMENT;
     }
 
-    public LfDeclaration[] getMetaVariables() {
-        return metaVariables.toArray(new LfDeclaration[metaVariables.size()]);
-    }
 }
