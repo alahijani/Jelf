@@ -1,6 +1,5 @@
 package org.alahijani.lf.compiler;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.TranslatingCompiler;
@@ -16,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * @author Ali Lahijani
@@ -47,71 +46,58 @@ public class TwelfCompiler implements TranslatingCompiler {
     }
 
     public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink sink) {
-        for (VirtualFile file : files) {
-            compile(context, moduleChunk, file, sink);
-        }
+        compile(context, files, true, false);
     }
 
-    private void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile file, OutputSink sink) {
-        System.out.println("file = " + file);
+    private void compile(CompileContext context, VirtualFile[] files, boolean autoFreeze, boolean unsafe) {
         try {
-            File cfg = File.createTempFile("sources", ".cfg", new File(file.getPath()).getParentFile());
+            ArrayList<File> tempFiles = new ArrayList<File>();
+            final TwelfServer twelfServer = TwelfServer.createTwelfServer(context);
             try {
-                FileWriter writer = new FileWriter(cfg);
-                try {
-                    writer.append(file.getName());
-                    writer.append("\n");
-                } finally {
-                    writer.close();
+                twelfServer.setAutoFreeze(autoFreeze);
+                twelfServer.setUnsafe(unsafe);
+
+                for (VirtualFile file : files) {
+                    singleTwelfFile(twelfServer, file, tempFiles);
+
+                    twelfServer.reset();
                 }
 
-                boolean autoFreeze = false;
-                boolean unsafe = true;
-
-                final TwelfServer twelfServer = TwelfServer.createTwelfServer();
-                try {
-                    twelfServer.setAutoFreeze(autoFreeze);
-                    twelfServer.setUnsafe(unsafe);
-                    twelfServer.make(cfg);
-                    Future<?> future = parseErrors(twelfServer, context);
-                    twelfServer.waitFor();
-                    joinThread(future);
-                } catch (InterruptedException e) {
-                    // ignore
-                } finally {
-                    twelfServer.destroy();
-                }
-
+                twelfServer.waitFor();
             } finally {
-                boolean deleted = cfg.delete();
-                LOG.assertTrue(deleted);
+                twelfServer.destroy();
+                for (File temp : tempFiles) {
+                    boolean deleted = temp.delete();
+                    LOG.assertTrue(deleted);
+                }
             }
+        } catch (InterruptedException ignored) {
+            LOG.info("Thread interrupted", ignored);
+        } catch (ExecutionException ignored) {
+            LOG.info("Thread interrupted", ignored);
         } catch (IOException e) {
             LOG.error(e);
         }
     }
 
-    private Future<?> parseErrors(final TwelfServer twelfServer, final CompileContext context) {
-        return ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
-            public void run() {
-                try {
-                    twelfServer.parseErrors(context);
-                } catch (IOException e) {
-                    LOG.error(e);
-                }
-            }
-        });
-    }
-
-    private void joinThread(final Future<?> threadFuture) {
-        if (threadFuture != null) {
-            try {
-                threadFuture.get();
-            } catch (InterruptedException ignored) {
-                LOG.info("Thread interrupted", ignored);
-            } catch (ExecutionException ignored) {
-                LOG.info("Thread interrupted", ignored);
-            }
+    private void singleTwelfFile(TwelfServer twelfServer, VirtualFile twelf, ArrayList<File> tempFiles) throws IOException {
+        File cfg = File.createTempFile("sources", ".cfg", new File(twelf.getPath()).getParentFile());
+        try {
+            printName(twelf, cfg);
+            twelfServer.make(cfg);
+        } finally {
+            tempFiles.add(cfg);
         }
     }
+
+    private void printName(VirtualFile twelf, File cfg) throws IOException {
+        FileWriter writer = new FileWriter(cfg);
+        try {
+            writer.append(twelf.getName());
+            writer.append("\n");
+        } finally {
+            writer.close();
+        }
+    }
+
 }
