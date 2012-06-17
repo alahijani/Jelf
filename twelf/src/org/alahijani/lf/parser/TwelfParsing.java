@@ -20,21 +20,21 @@ public class TwelfParsing {
 
     private static final IElementType USER_DEFINED_OPERATOR = null;
 
-    private Map<String, Operation.Operator> operatorMap = new LinkedHashMap<String, Operation.Operator>(); {
-        operatorMap.put("", Operation.juxOp);
-        operatorMap.put("->", Operation.arrowOp);
-        operatorMap.put("<-", Operation.backArrowOp);
-        operatorMap.put(":", Operation.colonOp);
+    private Map<String, Operator> operatorMap = new LinkedHashMap<String, Operator>(); {
+        operatorMap.put("", Operator.juxOp);
+        operatorMap.put("->", Operator.arrowOp);
+        operatorMap.put("<-", Operator.backArrowOp);
+        operatorMap.put(":", Operator.colonOp);
     }
 
     @Nullable
-    private Operation.Operator getOperator() {
+    private Operator getOperator() {
         String text = builder.getTokenText();
-        Operation.Operator operator = operatorMap.get(text);
+        Operator operator = operatorMap.get(text);
 
         if (operator == null && !builder.eof()) {
             if (APPLICATION_CANDIDATE.contains(builder.getTokenType())) {
-                operator = Operation.juxOp;
+                operator = Operator.juxOp;
             }
         }
 
@@ -114,20 +114,20 @@ public class TwelfParsing {
 
     private PsiBuilder.Marker termL(PsiBuilder.Marker lhs, int minPrecedence) {
 
-        Operation.Operator op = getOperator();
-        if (op == null || op.getPrecedence() < minPrecedence) {
+        Operator op = getOperator();
+        if (op == null || op.precedence < minPrecedence) {
             lhs.drop();
             return lhs;      // todo: just has been dropped!
         }
 
         while (true) {
 
-            if (op.getElementType() == USER_DEFINED_OPERATOR) {
+            if (op.elementType == USER_DEFINED_OPERATOR) {
                 String id = idReference();
-                // assert id != null; todo
+                assert id != null;
                 lhs.done(TwelfElementType.POSTFIX_APPLICATION);
                 lhs = lhs.precede();
-            } else if (op != Operation.juxOp) {
+            } else if (op != Operator.juxOp) {
                 builder.advanceLexer();
             }
 
@@ -139,26 +139,18 @@ public class TwelfParsing {
                 return lhs;
             }
 
-            termR(rhs, op.getPrecedence());
+            termR(rhs, op.precedence);
 
             done(lhs, op);
 
             op = getOperator();
-            if (op == null || op.getPrecedence() < minPrecedence) {
+            if (op == null || op.precedence < minPrecedence) {
                 return lhs;
             }
 
             lhs = lhs.precede();
         }
 
-    }
-
-    private void done(PsiBuilder.Marker lhs, Operation.Operator op) {
-        IElementType type = op.getElementType();
-        if (type == USER_DEFINED_OPERATOR) {
-            type = TwelfElementType.APPLICATION;
-        }
-        lhs.done(type);
     }
 
     private void termR(PsiBuilder.Marker rhs, int minPrecedence) {
@@ -168,26 +160,34 @@ public class TwelfParsing {
          *      a right-associative operator whose precedence is equal to op's
          */
         while (true) {
-            Operation.Operator op = getOperator();
-            if (!(op instanceof Operation.Infix)) {
+            Operator op = getOperator();
+            if (!(op instanceof Operator.Infix)) {
                 rhs.drop();
                 break; // todo
             }
 
-            if (op.getPrecedence() < minPrecedence) {
+            if (op.precedence < minPrecedence) {
                 rhs.drop();
                 break;
             }
-            if (op.getPrecedence() == minPrecedence) {
-                if (((Operation.Infix) op).getAssociativity() != Operation.Associativity.Right) {
+            if (op.precedence == minPrecedence) {
+                if (((Operator.Infix) op).associativity != Operator.Associativity.Right) {
                     rhs.drop();
                     break;
                 }
             }
 
-            rhs = termL(rhs, op.getPrecedence());
+            rhs = termL(rhs, op.precedence);
             rhs = rhs.precede();
         }
+    }
+
+    private void done(PsiBuilder.Marker lhs, Operator op) {
+        IElementType type = op.elementType;
+        if (type == USER_DEFINED_OPERATOR) {
+            type = TwelfElementType.APPLICATION;
+        }
+        lhs.done(type);
     }
 
     private boolean primaryTerm() {
@@ -388,7 +388,7 @@ public class TwelfParsing {
     private boolean fixityDirective() {
         String directive = builder.getTokenText();
 
-        Operation.Associativity associativity = null;
+        Operator.Associativity associativity = null;
         if (D_PREFIX.equals(directive) || D_POSTFIX.equals(directive)) {
             builder.advanceLexer();
         } else if (D_INFIX.equals(directive)) {
@@ -402,7 +402,7 @@ public class TwelfParsing {
         String id = idReference();
         if (id != null) {
             if (precedence != null && associativity != null) {
-                operatorMap.put(id, new Operation.Infix(precedence, associativity, USER_DEFINED_OPERATOR));
+                operatorMap.put(id, new Operator.Infix(precedence, associativity, USER_DEFINED_OPERATOR));
             }
         } else {
             builder.error(TwelfBundle.message("expected.identifier"));
@@ -412,7 +412,7 @@ public class TwelfParsing {
         return true;
     }
 
-    private Operation.Associativity associativity() {
+    private Operator.Associativity associativity() {
         if (builder.getTokenType() != IDENT) {
             builder.error(TwelfBundle.message("expected.associativity"));
             return null;
@@ -423,10 +423,10 @@ public class TwelfParsing {
         builder.advanceLexer();
         if ("left".equals(text)) {
             associativity.done(TwelfElementType.ASSOCIATIVITY);
-            return Operation.Associativity.Left;
+            return Operator.Associativity.Left;
         } else if ("right".equals(text)) {
             associativity.done(TwelfElementType.ASSOCIATIVITY);
-            return Operation.Associativity.Right;
+            return Operator.Associativity.Right;
         } else if ("none".equals(text)) {                           // todo implement none
             associativity.done(TwelfElementType.ASSOCIATIVITY);
             return null;

@@ -6,40 +6,25 @@ import org.alahijani.lf.TwelfElementType;
 /**
  * @author Ali Lahijani
  */
-public class Operation {
+public class Operator {
     public enum Associativity {
         Left, Right,
     }
 
+    public final int precedence;
+    public final IElementType elementType;
 
-    public static class Operator extends Operation {
-        private int precedence;
-        private IElementType elementType;
-
-        public int getPrecedence() {
-            return precedence;
-        }
-
-        public Operator(int precedence, IElementType elementType) {
-            this.precedence = precedence;
-            this.elementType = elementType;
-        }
-
-        public IElementType getElementType() {
-            return elementType;
-        }
+    public Operator(int precedence, IElementType elementType) {
+        this.precedence = precedence;
+        this.elementType = elementType;
     }
 
     public static class Infix extends Operator {
-        private Associativity associativity;
+        public final Associativity associativity;
 
         public Infix(int precedence, Associativity associativity, IElementType elementType) {
             super(precedence, elementType);
             this.associativity = associativity;
-        }
-
-        public Associativity getAssociativity() {
-            return associativity;
         }
     }
 
@@ -50,13 +35,9 @@ public class Operation {
     }
 
     public static class Postfix extends Operator {
-
         public Postfix(int precedence, IElementType elementType) {
             super(precedence, elementType);
         }
-    }
-
-    public static class Atom extends Operation {
     }
 
     public static final Infix juxOp = new Infix(Integer.MAX_VALUE, Associativity.Left, TwelfElementType.APPLICATION);

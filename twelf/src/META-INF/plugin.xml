@@ -44,7 +44,7 @@
         <!--<lang.formatter language="Twelf" implementationClass="org.alahijani.lf.formatter.TwelfFormattingModelBuilder"/>-->
         <annotator language="Twelf" implementationClass="org.alahijani.lf.annotator.TwelfAnnotator" />
 
-        <!--<compiler implementation="org.alahijani.lf.compiler.TwelfCompiler"/>-->
+        <compiler implementation="org.alahijani.lf.compiler.TwelfCompiler"/>
         <completion.contributor language="Twelf" implementationClass="org.alahijani.lf.completion.TwelfCompletionContributor"/>
         <!--<completion.contributor language="Twelf" implementationClass="org.alahijani.lf.completion.TwelfSmartCompletionContributor"/>-->
         <!--<gotoSymbolContributor implementation="org.alahijani.lf.gotoclass.TwelfGoToSymbolContributor"/>-->
