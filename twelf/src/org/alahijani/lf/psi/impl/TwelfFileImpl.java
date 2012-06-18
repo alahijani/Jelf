@@ -22,7 +22,7 @@ public class TwelfFileImpl extends PsiFileBase implements TwelfFile {
 
     @NotNull
     public FileType getFileType() {
-        return TwelfFileType.TWELF_FILE_TYPE;
+        return TwelfFileType.INSTANCE;
     }
 
     @Override

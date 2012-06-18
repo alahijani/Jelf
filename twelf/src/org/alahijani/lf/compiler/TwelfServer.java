@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class TwelfServer {
     private TwelfServer(Project project, Process process, CompileContext context) {
         this.process = process;
         this.out = new OutputStreamWriter(process.getOutputStream());
-        TwelfOutputParser outputParser = new TwelfOutputParser(project, process, context);
+        TwelfOutputParser outputParser = new TwelfOutputParser(project, context, process.getInputStream());
         this.future = ApplicationManager.getApplication().executeOnPooledThread(outputParser);
     }
 
@@ -52,11 +53,19 @@ public class TwelfServer {
     }
 
     public void make(File cfg) throws IOException {
-        out.append("make ").append(cfg.getPath().replace(File.separatorChar, '/')).append("\n");
+        make(cfg.getPath());
+    }
+
+    public void make(VirtualFile cfg) throws IOException {
+        make(cfg.getPath());
+    }
+
+    private void make(String path) throws IOException {
+        out.append("make ").append(path.replace(File.separatorChar, '/')).append("\n");
     }
 
     public int waitFor() throws InterruptedException, IOException, ExecutionException {
-        out.close();    // twelf expects an EOF
+        out.close();    // Twelf expects an EOF
         future.get();
         return process.waitFor();
     }
@@ -68,6 +77,5 @@ public class TwelfServer {
     public void destroy() {
         process.destroy();
     }
-
 }
 

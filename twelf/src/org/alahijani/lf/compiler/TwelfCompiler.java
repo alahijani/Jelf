@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Chunk;
 import org.alahijani.lf.TwelfBundle;
+import org.alahijani.lf.fileTypes.TwelfConfigFileType;
 import org.alahijani.lf.fileTypes.TwelfFileType;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +43,7 @@ public class TwelfCompiler implements TranslatingCompiler {
 
 
     public boolean isCompilableFile(VirtualFile file, CompileContext context) {
-        return TwelfFileType.TWELF_FILE_TYPE.equals(file.getFileType());
+        return TwelfFileType.INSTANCE.equals(file.getFileType()) || TwelfConfigFileType.INSTANCE.equals(file.getFileType());
     }
 
     public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink sink) {
@@ -58,7 +59,11 @@ public class TwelfCompiler implements TranslatingCompiler {
                 twelfServer.setUnsafe(unsafe);
 
                 for (VirtualFile file : files) {
-                    singleTwelfFile(twelfServer, file, tempFiles);
+                    if (TwelfConfigFileType.INSTANCE.equals(file.getFileType())) {
+                        twelfServer.make(file);
+                    } else if (TwelfFileType.INSTANCE.equals(file.getFileType())) {
+                        singleTwelfFile(twelfServer, file, tempFiles);
+                    }
 
                     twelfServer.reset();
                 }

@@ -38,7 +38,7 @@ public class TwelfLoader implements ApplicationComponent {
 
 //    private static void setupCompletion() {
 //        CompositeCompletionData compositeCompletionData = new CompositeCompletionData(new TwelfCompletionData(), new TwelfDocCompletionData());
-//        CompletionUtil.registerCompletionData(TwelfFileType.TWELF_FILE_TYPE, compositeCompletionData);
+//        CompletionUtil.registerCompletionData(TwelfFileType.INSTANCE, compositeCompletionData);
 //    }
 
     public void disposeComponent() {

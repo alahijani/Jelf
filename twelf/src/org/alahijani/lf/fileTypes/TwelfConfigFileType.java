@@ -1,46 +1,40 @@
 package org.alahijani.lf.fileTypes;
 
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
-import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.LanguageFileType;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.alahijani.lf.Twelf;
+import org.alahijani.lf.TwelfConfig;
 import org.alahijani.lf.TwelfIcons;
-import org.alahijani.lf.editor.TwelfEditorHighlighter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
 /**
  * @author Ali Lahijani
  */
-public class TwelfFileType extends LanguageFileType {
+public class TwelfConfigFileType extends LanguageFileType {
 
-    public static final TwelfFileType INSTANCE = new TwelfFileType();
+    public static final TwelfConfigFileType INSTANCE = new TwelfConfigFileType();
 
-    private TwelfFileType() {
-        super(Twelf.INSTANCE);
+    private TwelfConfigFileType() {
+        super(TwelfConfig.INSTANCE);
     }
 
     @NotNull
     public String getName() {
-        return "Twelf";
+        return "TwelfConfig";
     }
 
     @NotNull
     public String getDescription() {
-        return "Twelf files";
+        return "Twelf sources configuration files";
     }
 
     @NotNull
     public String getDefaultExtension() {
-        return "elf";
+        return "cfg";
     }
 
     public Icon getIcon() {
-        return TwelfIcons.TWELF_FILE;
+        return TwelfIcons.TWELF_CONFIG_FILE;
     }
 
     @Override
@@ -48,8 +42,10 @@ public class TwelfFileType extends LanguageFileType {
         return false;
     }
 
+/*
     @Override
     public EditorHighlighter getEditorHighlighter(@Nullable Project project, @Nullable VirtualFile virtualFile, @NotNull EditorColorsScheme colors) {
         return new TwelfEditorHighlighter(colors, project, virtualFile);
     }
+*/
 }

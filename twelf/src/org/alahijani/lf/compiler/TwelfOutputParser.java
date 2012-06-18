@@ -20,14 +20,14 @@ import java.util.regex.Pattern;
  * @author Ali Lahijani
  */
 public class TwelfOutputParser implements Runnable {
-    private final Process process;
     private final CompileContext context;
+    private InputStream inputStream;
     private int tabSize;
 
-    public TwelfOutputParser(Project project, Process process, CompileContext context) {
-        this.process = process;
+    public TwelfOutputParser(Project project, CompileContext context, InputStream inputStream) {
         this.context = context;
-        this.tabSize = CodeStyleSettingsManager.getSettings(project).getTabSize(TwelfFileType.TWELF_FILE_TYPE);
+        this.inputStream = inputStream;
+        this.tabSize = CodeStyleSettingsManager.getSettings(project).getTabSize(TwelfFileType.INSTANCE);
         if (tabSize <= 0) {
             tabSize = 1;
         }
@@ -41,7 +41,7 @@ public class TwelfOutputParser implements Runnable {
     private static Pattern INFO_PATTERN = Pattern.compile("\\[(Opening|Closing) file (\\w:)?([^:]+)\\]");
 
     private void parseOutput() throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
 
         try {
             String error = null;
@@ -116,7 +116,7 @@ public class TwelfOutputParser implements Runnable {
             columnNum--;    // make it zero-based
             columnNum = adjustForUTF8(lineText, columnNum);
             columnNum = adjustForTabs(lineText, columnNum);
-            columnNum++;    // make it one-based
+            columnNum++;    // back to one-based
         }
         context.addMessage(category, message, url, lineNum, columnNum);
     }
@@ -130,7 +130,7 @@ public class TwelfOutputParser implements Runnable {
 
     public int adjustForTabs(String text, int offset) {
         /**
-         * Sometimes twelf reports errors beyond the line end, maybe because of some presumed EOF or \0
+         * Sometimes Twelf reports errors after the line end, maybe because of some presumed EOF or \0
          * character at the end
          */
         text += " ";

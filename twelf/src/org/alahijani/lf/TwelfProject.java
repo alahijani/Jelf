@@ -8,6 +8,7 @@ import com.intellij.psi.PsiTreeChangeAdapter;
 import com.intellij.psi.PsiTreeChangeEvent;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.alahijani.lf.compiler.TwelfCompiler;
+import org.alahijani.lf.fileTypes.TwelfConfigFileType;
 import org.alahijani.lf.fileTypes.TwelfFileType;
 import org.alahijani.lf.psi.api.LfDeclaration;
 import org.alahijani.lf.psi.api.LfIdentifier;
@@ -45,7 +46,8 @@ public class TwelfProject implements ProjectComponent {
 
     public void projectOpened() {
         CompilerManager compilerManager = CompilerManager.getInstance(myProject);
-        compilerManager.addCompilableFileType(TwelfFileType.TWELF_FILE_TYPE);
+        compilerManager.addCompilableFileType(TwelfFileType.INSTANCE);
+        compilerManager.addCompilableFileType(TwelfConfigFileType.INSTANCE);
         compilerManager.addCompiler(new TwelfCompiler(myProject));
     }
 
