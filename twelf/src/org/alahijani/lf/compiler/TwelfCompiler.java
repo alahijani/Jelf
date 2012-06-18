@@ -46,13 +46,13 @@ public class TwelfCompiler implements TranslatingCompiler {
     }
 
     public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink sink) {
-        compile(context, files, true, false);
+        compile(context, files, false, false);
     }
 
     private void compile(CompileContext context, VirtualFile[] files, boolean autoFreeze, boolean unsafe) {
         try {
             ArrayList<File> tempFiles = new ArrayList<File>();
-            final TwelfServer twelfServer = TwelfServer.createTwelfServer(context);
+            final TwelfServer twelfServer = TwelfServer.createTwelfServer(project, context);
             try {
                 twelfServer.setAutoFreeze(autoFreeze);
                 twelfServer.setUnsafe(unsafe);
