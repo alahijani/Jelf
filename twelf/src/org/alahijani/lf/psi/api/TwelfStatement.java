@@ -11,5 +11,5 @@ public interface TwelfStatement extends TwelfElement {
     @NotNull
     TwelfFile getFile();
 
-    Map<String, LfDeclaration> getGlobalVariablesBefore();
+    Map<String, LfGlobalVariable> getGlobalVariablesBefore();
 }

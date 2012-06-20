@@ -18,11 +18,4 @@ public interface LfDeclaration extends LfElement, NavigatablePsiElement, PsiName
 
     LfTypeElement getTypeElement();
 
-    LfTerm getValue();
-
-    boolean isFileLevel();
-
-    boolean isMeta();
-
-    boolean isAnonymous();
 }

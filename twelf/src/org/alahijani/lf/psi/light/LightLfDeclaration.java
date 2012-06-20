@@ -24,17 +24,15 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class LightLfDeclaration extends LightElement implements LfDeclaration {
 
-    private LfIdentifier nameIdentifier;
-    private LfTerm type;
-    private LfTerm value;
-    private ASTNode node;
-    private PsiElement parent;
+    protected final LfIdentifier nameIdentifier;
+    protected final LfTerm type;
+    protected final ASTNode node;
+    protected final PsiElement parent;
 
     public LightLfDeclaration(PsiElement parent, String name, LfTerm type, LfTerm value) {
         super(parent.getManager(), Twelf.INSTANCE);
         this.nameIdentifier = new LightIdentifier(parent.getManager(), name);
         this.type = type;
-        this.value = value;
 
         CharTable charTable = SharedImplUtil.findCharTableByTree(parent.getNode());
         this.node = Factory.createSingleLeafElement(TwelfTokenType.PLACEHOLDER, "", charTable, this.getManager());  // todo needed?
@@ -48,17 +46,12 @@ public abstract class LightLfDeclaration extends LightElement implements LfDecla
         return node;
     }
 
-    public IElementType getTokenType() {
-        return TwelfElementType.LF_DECLARATION;
-    }
+    public abstract IElementType getTokenType();
 
     public String getText() {
         StringBuilder builder = new StringBuilder(getName());
         if (type != null) {
             builder.append(": ").append(type.getText());
-        }
-        if (value != null) {
-            builder.append(" = ").append(value.getText());
         }
         return builder.toString();
     }
@@ -107,55 +100,54 @@ public abstract class LightLfDeclaration extends LightElement implements LfDecla
         return null;  // todo
     }
 
-    public LfTerm getValue() {
-        return value;
+    public static LfLocalVariable declareAnonymousLocal(final PsiElement parent, @Nullable final LfTerm type) {
+        return new AnonymousLfLocalVariableImpl(parent, type);
     }
 
-    public boolean isFileLevel() {
-        return (getParent() instanceof GlobalVariableBinder);
+    public static LfMetaVariable declareMeta(final PsiElement parent, final String name) {
+        return new LfMetaVariableImpl(parent, name);
     }
 
-    public static LfDeclaration declareAnonymous(final PsiElement parent, @Nullable final LfTerm type) {
-        return new LightLfDeclaration(parent, "_", type, null) {
-            public boolean isMeta() {
-                return false;
-            }
+    private static class LfMetaVariableImpl extends LightLfDeclaration implements LfMetaVariable {
+        public LfMetaVariableImpl(PsiElement parent, String name) {
+            super(parent, name, null, null);
+        }
 
-            public boolean isAnonymous() {
-                return true;
-            }
+        @Override
+        public boolean canNavigate() {
+            return true;
+        }
 
-            @Override
-            public boolean canNavigate() {
-                return false;
-            }
+        @Override
+        public PsiElement copy() {
+            return new LfMetaVariableImpl(parent, getName());
+        }
 
-            @Override
-            public PsiElement copy() {
-                return declareAnonymous(parent, type);
-            }
-        };
+        @Override
+        public IElementType getTokenType() {
+            return TwelfElementType.LF_LOCAL_VARIABLE;
+        }
     }
 
-    public static LfDeclaration declareMeta(final PsiElement parent, final String name) {
-        return new LightLfDeclaration(parent, name, null, null) {
-            public boolean isMeta() {
-                return true;
-            }
+    private static class AnonymousLfLocalVariableImpl extends LightLfDeclaration implements LfLocalVariable {
 
-            public boolean isAnonymous() {
-                return false;
-            }
+        public AnonymousLfLocalVariableImpl(PsiElement parent, LfTerm type) {
+            super(parent, "_", type, null);
+        }
 
-            @Override
-            public boolean canNavigate() {
-                return true;
-            }
+        @Override
+        public boolean canNavigate() {
+            return false;
+        }
 
-            @Override
-            public PsiElement copy() {
-                return declareMeta(parent, name);
-            }
-        };
+        @Override
+        public PsiElement copy() {
+            return new AnonymousLfLocalVariableImpl(parent, type);
+        }
+
+        @Override
+        public IElementType getTokenType() {
+            return TwelfElementType.LF_META_VARIABLE;
+        }
     }
 }

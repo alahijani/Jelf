@@ -95,7 +95,7 @@ public class TwelfParsing {
             builder.error(TwelfBundle.message("expected.colonOrEq"));
         }
 
-        declaration.done(TwelfElementType.LF_DECLARATION);
+        declaration.done(TwelfElementType.LF_GLOBAL_VARIABLE);
         return true;
 
     }
@@ -251,7 +251,7 @@ public class TwelfParsing {
                     builder.error(TwelfBundle.message("expected.type"));
                 }
             }
-            declaration.done(TwelfElementType.LF_DECLARATION);
+            declaration.done(TwelfElementType.LF_LOCAL_VARIABLE);
 
             if (builder.getTokenType() == rBracket) {
                 builder.advanceLexer();

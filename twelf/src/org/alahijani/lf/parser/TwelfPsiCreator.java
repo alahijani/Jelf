@@ -30,8 +30,11 @@ public class TwelfPsiCreator implements TwelfTokenType {
         if (elem == TwelfElementType.DIRECTIVE_STATEMENT) {
             return new TwelfDirectiveImpl(node);
         }
-        if (elem == TwelfElementType.LF_DECLARATION) {
-            return new LfDeclarationImpl(node);
+        if (elem == TwelfElementType.LF_GLOBAL_VARIABLE) {
+            return new LfGlobalVariableImpl(node);
+        }
+        if (elem == TwelfElementType.LF_LOCAL_VARIABLE) {
+            return new LfLocalVariableImpl(node);
         }
         if (elem == TwelfElementType.REFERENCE_EXPRESSION) {
             return new LfIdentifierReferenceImpl(node);

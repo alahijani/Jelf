@@ -2,10 +2,7 @@ package org.alahijani.lf.psi.impl;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import org.alahijani.lf.psi.api.GlobalVariableBinder;
-import org.alahijani.lf.psi.api.LfDeclaration;
-import org.alahijani.lf.psi.api.TwelfFile;
-import org.alahijani.lf.psi.api.TwelfStatement;
+import org.alahijani.lf.psi.api.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
@@ -16,7 +13,7 @@ import java.util.Map;
  */
 public abstract class TwelfStatementImpl extends TwelfElementImpl implements TwelfStatement {
 
-//    private Map<String,LfDeclaration> globalVariablesBefore;
+//    private Map<String, LfGlobalVariable> globalVariablesBefore;
 
     public TwelfStatementImpl(@NotNull ASTNode node) {
         super(node);
@@ -27,7 +24,7 @@ public abstract class TwelfStatementImpl extends TwelfElementImpl implements Twe
         return (TwelfFile) getParent();
     }
 
-    public Map<String, LfDeclaration> getGlobalVariablesBefore() {
+    public Map<String, LfGlobalVariable> getGlobalVariablesBefore() {
 //        if (globalVariablesBefore == null) {
 //            globalVariablesBefore = findGlobalVariablesBefore();
 //        }
@@ -36,14 +33,14 @@ public abstract class TwelfStatementImpl extends TwelfElementImpl implements Twe
         return findGlobalVariablesBefore();
     }
 
-    private Map<String, LfDeclaration> findGlobalVariablesBefore() {
-        Map<String, LfDeclaration> globalVariablesBefore = new LinkedHashMap<String, LfDeclaration>();
+    private Map<String, LfGlobalVariable> findGlobalVariablesBefore() {
+        Map<String, LfGlobalVariable> globalVariablesBefore = new LinkedHashMap<String, LfGlobalVariable>();
 
         PsiElement element = this;
         do {
             element = element.getPrevSibling();
             if (element instanceof GlobalVariableBinder) {
-                LfDeclaration declaration = ((GlobalVariableBinder) element).getDeclaration();
+                LfGlobalVariable declaration = ((GlobalVariableBinder) element).getDeclaration();
                 globalVariablesBefore.put(declaration.getName(), declaration);
             }
             if (element instanceof TwelfStatement) {    // short circuiting for TwelfStatement as an optimization

@@ -5,10 +5,8 @@ import com.intellij.psi.PsiReference;
 /**
  * @author Ali Lahijani
  */
-public interface LfIdentifierReference extends LfTerm, PsiReference
- //, PsiPolyVariantReference
- //, PsiQualifiedReference
-{
+public interface LfIdentifierReference extends LfTerm, PsiReference /*, PsiPolyVariantReference*/
+ /*, PsiQualifiedReference*/ {
 
     LfIdentifier getIdentifier();
 

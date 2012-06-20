@@ -4,7 +4,8 @@ import com.intellij.lang.ASTNode;
 import org.alahijani.lf.TwelfIcons;
 import org.alahijani.lf.lang.TwelfTokenType;
 import org.alahijani.lf.psi.api.GlobalVariableBinder;
-import org.alahijani.lf.psi.api.LfDeclaration;
+import org.alahijani.lf.psi.api.LfGlobalVariable;
+import org.alahijani.lf.psi.api.LfMetaVariable;
 import org.alahijani.lf.psi.light.LightLfDeclaration;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,26 +18,26 @@ import java.util.Map;
  */
 public class AbbrevDirectiveImpl extends TwelfDirectiveImpl implements GlobalVariableBinder {
 
-    private Map<String, LfDeclaration> metaVariables = new LinkedHashMap<String, LfDeclaration>();
+    private Map<String, LfMetaVariable> metaVariables = new LinkedHashMap<String, LfMetaVariable>();
 
     public AbbrevDirectiveImpl(@NotNull ASTNode node) {
         super(node);
         assert getDirectiveName().equals(TwelfTokenType.D_ABBREV);
     }
 
-    public LfDeclaration getMeta(String name) {
+    public LfMetaVariable getMeta(String name) {
         return metaVariables.get(name);
     }
 
-    public LfDeclaration declareMeta(String name) {
-        LfDeclaration declaration = LightLfDeclaration.declareMeta(this, name);
+    public LfMetaVariable declareMeta(String name) {
+        LfMetaVariable declaration = LightLfDeclaration.declareMeta(this, name);
         // add(declaration);
         metaVariables.put(name, declaration);
         return declaration;
     }
 
-    public LfDeclaration getDeclaration() {
-        return findChildByClass(LfDeclaration.class);
+    public LfGlobalVariable getDeclaration() {
+        return findChildByClass(LfGlobalVariable.class);
     }
 
     @Override

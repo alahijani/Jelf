@@ -3,8 +3,8 @@ package org.alahijani.lf.psi.impl;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.stubs.StubElement;
+import org.alahijani.lf.psi.api.LfLocalVariable;
 import org.alahijani.lf.psi.api.LocalVariableBinder;
-import org.alahijani.lf.psi.api.LfDeclaration;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -19,7 +19,7 @@ public class LocalVariableBinderImpl extends TwelfElementImpl implements LocalVa
         super(node);
     }
 
-    public LfDeclaration getBoundDeclaration() {
-        return findChildByClass(LfDeclaration.class);
+    public LfLocalVariable getBoundDeclaration() {
+        return findChildByClass(LfLocalVariable.class);
     }
 }

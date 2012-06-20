@@ -2,8 +2,9 @@ package org.alahijani.lf.psi.impl;
 
 import com.intellij.lang.ASTNode;
 import org.alahijani.lf.TwelfIcons;
-import org.alahijani.lf.psi.api.LfDeclaration;
 import org.alahijani.lf.psi.api.LfDeclarationStatement;
+import org.alahijani.lf.psi.api.LfGlobalVariable;
+import org.alahijani.lf.psi.api.LfMetaVariable;
 import org.alahijani.lf.psi.light.LightLfDeclaration;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,25 +17,25 @@ import java.util.Map;
  */
 public class LfDeclarationStatementImpl extends TwelfStatementImpl implements LfDeclarationStatement {
 
-    private Map<String, LfDeclaration> metaVariables = new LinkedHashMap<String, LfDeclaration>();
+    private Map<String, LfMetaVariable> metaVariables = new LinkedHashMap<String, LfMetaVariable>();
 
     public LfDeclarationStatementImpl(@NotNull ASTNode node) {
         super(node);
     }
 
-    public LfDeclaration getMeta(String name) {
+    public LfMetaVariable getMeta(String name) {
         return metaVariables.get(name);
     }
 
-    public LfDeclaration declareMeta(String name) {
-        LfDeclaration declaration = LightLfDeclaration.declareMeta(this, name);
+    public LfMetaVariable declareMeta(String name) {
+        LfMetaVariable declaration = LightLfDeclaration.declareMeta(this, name);
         // add(declaration);
         metaVariables.put(name, declaration);
         return declaration;
     }
 
-    public LfDeclaration getDeclaration() {
-        return findChildByClass(LfDeclaration.class);
+    public LfGlobalVariable getDeclaration() {
+        return findChildByClass(LfGlobalVariable.class);
     }
 
     @Override

@@ -54,14 +54,14 @@ public class Referencing {
                 if (meta != null) {
                     return meta;
                 }
-                */
-/**
+*/
+                /**
                  * should also check TwelfStatement, so no continue
-                 *//*
-
+                 */
+/*
             }
             if (element instanceof TwelfStatement) {
-                Map<String, LfDeclaration> globals = ((TwelfStatement) element).getGlobalVariablesBefore();
+                Map<String, LfGlobalVariable> globals = ((TwelfStatement) element).getGlobalVariablesBefore();
                 LfDeclaration global = globals.get(name);
                 if (global != null) {
                     return global;
@@ -115,7 +115,7 @@ public class Referencing {
                  */
             }
             if (element instanceof TwelfStatement) {
-                Map<String, LfDeclaration> globals = ((TwelfStatement) element).getGlobalVariablesBefore();
+                Map<String, LfGlobalVariable> globals = ((TwelfStatement) element).getGlobalVariablesBefore();
                 LfDeclaration global = globals.get(name);
                 if (global != null) {
                     return global;
@@ -163,7 +163,7 @@ public class Referencing {
                  */
             }
             if (element instanceof TwelfStatement) {
-                Map<String, LfDeclaration> globals = ((TwelfStatement) element).getGlobalVariablesBefore();
+                Map<String, LfGlobalVariable> globals = ((TwelfStatement) element).getGlobalVariablesBefore();
 
                 if (metaVariableBinder != null) {
                     Set<String> metaCandidates = getMetaCandidates(metaVariableBinder);

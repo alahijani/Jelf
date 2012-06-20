@@ -6,10 +6,7 @@ import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
 import org.alahijani.lf.TwelfBundle;
 import org.alahijani.lf.editor.TwelfHighlighterColors;
-import org.alahijani.lf.psi.api.LfDeclaration;
-import org.alahijani.lf.psi.api.LfIdentifier;
-import org.alahijani.lf.psi.api.LfIdentifierReference;
-import org.alahijani.lf.psi.api.TwelfElement;
+import org.alahijani.lf.psi.api.*;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -37,9 +34,9 @@ public class TwelfAnnotator implements Annotator {
 
             holder.createErrorAnnotation(identifier, TwelfBundle.message("error.undeclared.identifier", identifier.getText()))
                     .setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL);
-        } else if (declaration.isMeta()) {
+        } else if (declaration instanceof LfMetaVariable) {
             holder.createInfoAnnotation(identifier, null).setTextAttributes(TwelfHighlighterColors.LF_META_VARIABLE);
-        } else if (declaration.isFileLevel()) {
+        } else if (declaration instanceof LfGlobalVariable) {
             holder.createInfoAnnotation(identifier, null).setTextAttributes(TwelfHighlighterColors.LF_SIGNATURE_IDENTIFIER);
         } else {
             holder.createInfoAnnotation(identifier, null).setTextAttributes(TwelfHighlighterColors.LF_LOCAL_IDENTIFIER);

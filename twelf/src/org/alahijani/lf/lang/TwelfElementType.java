@@ -2,7 +2,7 @@ package org.alahijani.lf.lang;
 
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
-import org.alahijani.lf.psi.stubs.elements.LfDeclarationElementType;
+import org.alahijani.lf.psi.stubs.elements.LfGlobalVariableElementType;
 import org.alahijani.lf.psi.tree.ITwelfElementType;
 
 
@@ -33,7 +33,9 @@ public interface TwelfElementType extends TokenType {
     IElementType REFERENCE_EXPRESSION = new ITwelfElementType("Reference expressions");
     IElementType STRING_EXPRESSION = new ITwelfElementType("String literal expression");
 
-    IElementType LF_DECLARATION = new LfDeclarationElementType("Lf declaration");
+    IElementType LF_GLOBAL_VARIABLE = new LfGlobalVariableElementType("Lf global variable");
+    IElementType LF_LOCAL_VARIABLE = new ITwelfElementType("Lf local variable");
+    IElementType LF_META_VARIABLE = new ITwelfElementType("Lf meta-variable");
 
     IElementType TWELF_CONFIG_FILE = TwelfConfigParserDefinition.TWELF_CONFIG_FILE;
     IElementType TWELF_FILE_REFERENCE = new IElementType("Twelf file reference", TwelfConfig.INSTANCE);

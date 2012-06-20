@@ -5,6 +5,6 @@ package org.alahijani.lf.psi.api;
  */
 public interface GlobalVariableBinder extends TwelfStatement, MetaVariableBinder {
 
-    LfDeclaration getDeclaration();
+    LfGlobalVariable getDeclaration();
 
 }

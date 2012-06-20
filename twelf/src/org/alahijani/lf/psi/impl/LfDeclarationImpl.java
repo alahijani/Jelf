@@ -7,7 +7,7 @@ import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.util.IncorrectOperationException;
 import org.alahijani.lf.lang.TwelfTokenType;
 import org.alahijani.lf.psi.api.*;
-import org.alahijani.lf.psi.stubs.LfDeclarationStub;
+import org.alahijani.lf.psi.stubs.LfGlobalVariableStub;
 import org.alahijani.lf.psi.xref.Referencing;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -15,30 +15,14 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author Ali Lahijani
  */
-public class LfDeclarationImpl extends TwelfBaseElementImpl<LfDeclarationStub> implements LfDeclaration, StubBasedPsiElement<LfDeclarationStub> {
+public abstract class LfDeclarationImpl extends TwelfBaseElementImpl<LfGlobalVariableStub> implements LfDeclaration, StubBasedPsiElement<LfGlobalVariableStub> {
 
-    public LfDeclarationImpl(final LfDeclarationStub stub, IStubElementType nodeType) {
+    public LfDeclarationImpl(final LfGlobalVariableStub stub, IStubElementType nodeType) {
         super(stub, nodeType);
     }
 
     public LfDeclarationImpl(final ASTNode node) {
         super(node);
-    }
-
-    public LfTerm getValue() {
-        return findChildByClass(LfTerm.class);
-    }
-
-    public boolean isFileLevel() {
-        return (getParent() instanceof GlobalVariableBinder);
-    }
-
-    public boolean isMeta() {
-        return false;
-    }
-
-    public boolean isAnonymous() {
-        return getNameIdentifier().isAnonymous();
     }
 
     public LfIdentifier getNameIdentifier() {
