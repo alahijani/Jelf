@@ -1,4 +1,4 @@
-package org.alahijani.lf;
+package org.alahijani.lf.lang;
 
 import com.intellij.lang.Language;
 

@@ -1,24 +1,26 @@
-package org.alahijani.lf;
+package org.alahijani.lf.lang;
 
 import com.intellij.lang.Language;
+import com.intellij.openapi.fileTypes.SingleLazyInstanceSyntaxHighlighterFactory;
+import com.intellij.openapi.fileTypes.SyntaxHighlighter;
+import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Ali Lahijani
  */
-public class TwelfConfig extends Language {
+public class Twelf extends Language {
 
-    public static final TwelfConfig INSTANCE = new TwelfConfig();
+    public static final Twelf INSTANCE = new Twelf();
 
-    public TwelfConfig() {
-        super("Twelf Sources Configuration");
-/*
+    public Twelf() {
+        super(new LF(), "Twelf");
         SyntaxHighlighterFactory.LANGUAGE_FACTORY.addExplicitExtension(this, new SingleLazyInstanceSyntaxHighlighterFactory() {
             @NotNull
             protected SyntaxHighlighter createHighlighter() {
                 return new TwelfSyntaxHighlighter();
             }
         });
-*/
     }
 
     @Override

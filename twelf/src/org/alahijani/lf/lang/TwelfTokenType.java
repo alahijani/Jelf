@@ -1,4 +1,4 @@
-package org.alahijani.lf;
+package org.alahijani.lf.lang;
 
 import com.intellij.psi.CustomHighlighterTokenType;
 import com.intellij.psi.TokenType;

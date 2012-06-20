@@ -1,7 +1,7 @@
 package org.alahijani.lf.psi.impl;
 
 import com.intellij.lang.ASTNode;
-import org.alahijani.lf.TwelfTokenType;
+import org.alahijani.lf.lang.TwelfTokenType;
 import org.alahijani.lf.psi.api.LfIdentifier;
 import org.alahijani.lf.psi.api.LfIdentifierReference;
 import org.alahijani.lf.psi.api.NameDirective;

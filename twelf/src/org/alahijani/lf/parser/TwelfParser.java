@@ -3,8 +3,10 @@ package org.alahijani.lf.parser;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiParser;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.tree.IElementType;
-import org.alahijani.lf.TwelfTokenType;
+import org.alahijani.lf.lang.TwelfElementType;
+import org.alahijani.lf.lang.TwelfTokenType;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -13,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * @author Ali Lahijani
  */
 public class TwelfParser implements PsiParser {
+    private static final Logger LOG = Logger.getInstance("#org.alahijani.lf.parser.TwelfParser");
 
     @NotNull
     public ASTNode parse(IElementType root, PsiBuilder builder) {
@@ -20,7 +23,13 @@ public class TwelfParser implements PsiParser {
 
         PsiBuilder.Marker document = builder.mark();
 
-        new TwelfParsing(builder).document();
+        if (root == TwelfElementType.TWELF_FILE) {
+            new TwelfParsing(builder).document();
+        } else if (root == TwelfElementType.TWELF_CONFIG_FILE) {
+            new TwelfConfigParsing(builder).document();
+        } else {
+            LOG.error("Unexpected root element type: " + root);
+        }
 
         document.done(root);
         return builder.getTreeBuilt();

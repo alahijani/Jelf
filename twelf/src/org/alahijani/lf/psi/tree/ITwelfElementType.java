@@ -1,7 +1,7 @@
 package org.alahijani.lf.psi.tree;
 
 import com.intellij.psi.tree.IElementType;
-import org.alahijani.lf.Twelf;
+import org.alahijani.lf.lang.Twelf;
 import org.jetbrains.annotations.NonNls;
 
 /**

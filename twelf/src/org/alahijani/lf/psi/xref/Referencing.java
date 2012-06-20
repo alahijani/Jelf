@@ -21,6 +21,62 @@ import java.util.Set;
  */
 public class Referencing {
 
+/*
+    @NotNull
+    public static ResolveResult[] multiResolveTarget(LfIdentifierReference reference) {
+        @NotNull String name = reference.getText();
+        if (TwelfLexer.isAnonymousIdentifier(name)) {
+            return new ResolveResult[0];    // TODO implement term reconstruction
+        }
+        boolean isUppercase = TwelfLexer.isUppercaseIdentifier(name);
+
+        MetaVariableBinder metaVariableBinder = null;
+        LfDeclaration beingDeclared = null;
+        PsiElement element = reference;
+
+        for (; ; element = element.getParent()) {
+
+            if (element instanceof LocalVariableBinder) {
+                LocalVariableBinder binder = (LocalVariableBinder) element;
+                LfDeclaration declaration = binder.getBoundDeclaration();
+                if (declaration != beingDeclared && name.equals(declaration.getName())) {
+                    return new ResolveResult[]{new PsiElementResolveResult(declaration)};
+                }
+                continue;
+            }
+            if (element instanceof LfDeclaration) {
+                beingDeclared = (LfDeclaration) element;
+                continue;
+            }
+            if (isUppercase && element instanceof MetaVariableBinder) {
+                metaVariableBinder = (MetaVariableBinder) element;
+                LfDeclaration meta = metaVariableBinder.getMeta(name);
+                if (meta != null) {
+                    return meta;
+                }
+                */
+/**
+                 * should also check TwelfStatement, so no continue
+                 *//*
+
+            }
+            if (element instanceof TwelfStatement) {
+                Map<String, LfDeclaration> globals = ((TwelfStatement) element).getGlobalVariablesBefore();
+                LfDeclaration global = globals.get(name);
+                if (global != null) {
+                    return global;
+                }
+
+                if (metaVariableBinder != null) {
+                    // assert isUppercase;
+                    return metaVariableBinder.declareMeta(name);
+                }
+            }
+            if (element == null) return null;
+        }
+    }
+*/
+
     @Nullable
     public static LfDeclaration resolveTarget(LfIdentifierReference reference) {
 

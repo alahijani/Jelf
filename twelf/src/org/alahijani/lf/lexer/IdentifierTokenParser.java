@@ -3,7 +3,7 @@ package org.alahijani.lf.lexer;
 import com.intellij.psi.PsiBundle;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.IncorrectOperationException;
-import org.alahijani.lf.TwelfTokenType;
+import org.alahijani.lf.lang.TwelfTokenType;
 
 import java.util.Arrays;
 import java.util.List;

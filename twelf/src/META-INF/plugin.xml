@@ -30,9 +30,10 @@
                         serviceImplementation="org.alahijani.lf.psi.TwelfPsiElementFactory"/>
 
         <fileTypeFactory implementation="org.alahijani.lf.fileTypes.TwelfFileTypeFactory"/>
-        <syntaxHighlighter key="Twelf" implementationClass="org.alahijani.lf.TwelfSyntaxHighlighter"/>
+        <syntaxHighlighter key="Twelf" implementationClass="org.alahijani.lf.lang.TwelfSyntaxHighlighter"/>
+        <syntaxHighlighter key="TwelfConfig" implementationClass="org.alahijani.lf.lang.TwelfConfigSyntaxHighlighter"/>
 
-        <lang.parserDefinition language="Twelf" implementationClass="org.alahijani.lf.parser.TwelfParserDefinition"/>
+        <lang.parserDefinition language="Twelf" implementationClass="org.alahijani.lf.lang.TwelfParserDefinition"/>
         <lang.braceMatcher language="Twelf" implementationClass="org.alahijani.lf.editor.TwelfBraceMatcher"/>
         <lang.commenter language="Twelf" implementationClass="org.alahijani.lf.editor.TwelfCommenter"/>
         <lang.psiStructureViewFactory language="Twelf" implementationClass="org.alahijani.lf.structure.TwelfStructureViewFactory"/>
@@ -58,7 +59,10 @@
                                    implementationClass="org.alahijani.lf.params.TwelfParameterInfoHandler"/>
         <!--<semContributor implementation=""/>-->
 
+        <stubElementTypeHolder class="org.alahijani.lf.lang.TwelfElementType"/>
         <stubIndex implementation="org.alahijani.lf.psi.stubs.index.LfDeclarationIndex"/>
+
+        <lang.parserDefinition language="TwelfConfig" implementationClass="org.alahijani.lf.lang.TwelfConfigParserDefinition"/>
 
     </extensions>
 </idea-plugin>

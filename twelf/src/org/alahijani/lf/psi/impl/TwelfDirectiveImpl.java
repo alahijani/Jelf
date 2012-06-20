@@ -1,7 +1,7 @@
 package org.alahijani.lf.psi.impl;
 
 import com.intellij.lang.ASTNode;
-import org.alahijani.lf.TwelfTokenType;
+import org.alahijani.lf.lang.TwelfTokenType;
 import org.alahijani.lf.psi.api.TwelfDirective;
 import org.jetbrains.annotations.NotNull;
 

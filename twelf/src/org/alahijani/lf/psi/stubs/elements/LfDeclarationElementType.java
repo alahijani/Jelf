@@ -17,9 +17,9 @@ import java.io.IOException;
  * @author Ali Lahijani
  */
 public class LfDeclarationElementType extends TwelfStubElementType<LfDeclarationStub, LfDeclaration> {
-  public LfDeclarationElementType(String debugName) {
-    super(debugName);
-  }
+    public LfDeclarationElementType(String debugName) {
+        super(debugName);
+    }
 
     @Override
     public PsiElement createElement(ASTNode node) {

@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.ex.util.LayeredLexerEditorHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.alahijani.lf.TwelfSyntaxHighlighter;
+import org.alahijani.lf.lang.TwelfSyntaxHighlighter;
 
 /**
  * @author Ali Lahijani

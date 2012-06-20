@@ -1,8 +1,8 @@
 package org.alahijani.lf.fileTypes;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
-import org.alahijani.lf.TwelfConfig;
 import org.alahijani.lf.TwelfIcons;
+import org.alahijani.lf.lang.TwelfConfig;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

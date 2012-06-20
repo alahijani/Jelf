@@ -4,15 +4,15 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
-import org.alahijani.lf.TwelfElementType;
-import org.alahijani.lf.TwelfTokenType;
+import org.alahijani.lf.lang.TwelfElementType;
+import org.alahijani.lf.lang.TwelfTokenType;
 import org.alahijani.lf.psi.impl.*;
 
 /**
  * @author Ali Lahijani
  */
 public class TwelfPsiCreator implements TwelfTokenType {
-    public static PsiElement createElement(ASTNode node) {
+    public static PsiElement createTwelfElement(ASTNode node) {
         IElementType elem = node.getElementType();
 
         if (elem == TwelfElementType.LF_DECLARATION_STATEMENT) {
@@ -73,4 +73,18 @@ public class TwelfPsiCreator implements TwelfTokenType {
         return new ASTWrapperPsiElement(node);
 
     }
+
+    public static PsiElement createTwelfConfigElement(ASTNode node) {
+        IElementType elem = node.getElementType();
+
+        if (elem == TwelfElementType.FILE_NAME) {
+            return new LfIdentifierImpl(node);
+        }
+        if (elem == TwelfElementType.TWELF_FILE_REFERENCE) {
+            return new TwelfFileReferenceImpl(node);
+        }
+
+        return new ASTWrapperPsiElement(node);
+    }
+
 }

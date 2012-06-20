@@ -8,7 +8,7 @@ import com.intellij.psi.impl.source.tree.CompositeElement;
 import com.intellij.psi.impl.source.tree.TreeCopyHandler;
 import com.intellij.psi.impl.source.tree.TreeElement;
 import com.intellij.util.IncorrectOperationException;
-import org.alahijani.lf.TwelfElementType;
+import org.alahijani.lf.lang.TwelfElementType;
 import org.alahijani.lf.psi.api.LfIdentifierReference;
 
 import java.util.Map;

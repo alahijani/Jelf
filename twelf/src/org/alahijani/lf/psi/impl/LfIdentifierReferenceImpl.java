@@ -2,10 +2,7 @@ package org.alahijani.lf.psi.impl;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.PsiReference;
+import com.intellij.psi.*;
 import com.intellij.psi.impl.source.resolve.ResolveCache;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.IncorrectOperationException;
@@ -60,9 +57,9 @@ public class LfIdentifierReferenceImpl extends TwelfElementImpl implements LfIde
     public PsiElement bindToElement(@NotNull PsiElement element) throws IncorrectOperationException {
         if (isReferenceTo(element)) return this;
 
-      if (element instanceof LfDeclaration) {
-          handleElementRename(((LfDeclaration) element).getName());
-      }
+        if (element instanceof LfDeclaration) {
+            handleElementRename(((LfDeclaration) element).getName());
+        }
 
         throw new IncorrectOperationException("Cannot bind to:" + element + " of class " + element.getClass());
     }
@@ -128,10 +125,36 @@ public class LfIdentifierReferenceImpl extends TwelfElementImpl implements LfIde
         return getManager().getResolveCache().resolveWithCaching(this, RESOLVER, true, false);
     }
 
+/*
+    @NotNull
+    public ResolveResult[] multiResolve(boolean incompleteCode) {
+        return getManager().getResolveCache().resolveWithCaching(this, POLY_VARIANT_RESOLVER, true, false);
+    }
+*/
+
     private static final ResolveCache.Resolver RESOLVER = new ResolveCache.Resolver() {
         public PsiElement resolve(PsiReference psiReference, boolean incompleteCode) {
-            return Referencing.resolveTarget((LfIdentifierReference) psiReference);
+            return ((LfIdentifierReferenceImpl) psiReference).doResolve();
         }
     };
+
+/*
+    private static final ResolveCache.PolyVariantResolver<LfIdentifierReferenceImpl> POLY_VARIANT_RESOLVER = new ResolveCache.PolyVariantResolver<LfIdentifierReferenceImpl>() {
+        public ResolveResult[] resolve(LfIdentifierReferenceImpl lfIdentifierReference, boolean incompleteCode) {
+            return lfIdentifierReference.doMultiResolve();
+        }
+    };
+*/
+
+    protected PsiElement doResolve() {
+        return Referencing.resolveTarget(this);
+    }
+
+/*
+    @NotNull
+    public ResolveResult[] doMultiResolve() {
+        return Referencing.multiResolveTarget(this);
+    }
+*/
 
 }

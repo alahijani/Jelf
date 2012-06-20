@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.StubBasedPsiElement;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.util.IncorrectOperationException;
-import org.alahijani.lf.TwelfTokenType;
+import org.alahijani.lf.lang.TwelfTokenType;
 import org.alahijani.lf.psi.api.*;
 import org.alahijani.lf.psi.stubs.LfDeclarationStub;
 import org.alahijani.lf.psi.xref.Referencing;

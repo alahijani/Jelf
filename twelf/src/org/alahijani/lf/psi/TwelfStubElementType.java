@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.stubs.IndexSink;
 import com.intellij.psi.stubs.StubElement;
-import org.alahijani.lf.Twelf;
+import org.alahijani.lf.lang.Twelf;
 import org.alahijani.lf.psi.api.TwelfElement;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;

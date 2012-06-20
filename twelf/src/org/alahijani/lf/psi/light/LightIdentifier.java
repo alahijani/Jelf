@@ -3,11 +3,10 @@ package org.alahijani.lf.psi.light;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.PsiType;
 import com.intellij.psi.impl.light.LightElement;
 import com.intellij.psi.tree.IElementType;
-import org.alahijani.lf.Twelf;
-import org.alahijani.lf.TwelfElementType;
+import org.alahijani.lf.lang.Twelf;
+import org.alahijani.lf.lang.TwelfElementType;
 import org.alahijani.lf.lexer.TwelfLexer;
 import org.alahijani.lf.psi.TwelfElementVisitor;
 import org.alahijani.lf.psi.api.LfIdentifier;
@@ -60,10 +59,6 @@ public class LightIdentifier extends LightElement implements LfIdentifier {
 
     public String toString() {
         return "identifier '" + getText() + "'";
-    }
-
-    public PsiType getType() {
-        return null;
     }
 
 }

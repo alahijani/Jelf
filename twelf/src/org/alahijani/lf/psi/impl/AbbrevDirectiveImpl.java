@@ -2,7 +2,7 @@ package org.alahijani.lf.psi.impl;
 
 import com.intellij.lang.ASTNode;
 import org.alahijani.lf.TwelfIcons;
-import org.alahijani.lf.TwelfTokenType;
+import org.alahijani.lf.lang.TwelfTokenType;
 import org.alahijani.lf.psi.api.GlobalVariableBinder;
 import org.alahijani.lf.psi.api.LfDeclaration;
 import org.alahijani.lf.psi.light.LightLfDeclaration;

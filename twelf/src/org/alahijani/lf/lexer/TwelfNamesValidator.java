@@ -2,7 +2,7 @@ package org.alahijani.lf.lexer;
 
 import com.intellij.lang.refactoring.NamesValidator;
 import com.intellij.openapi.project.Project;
-import org.alahijani.lf.TwelfTokenType;
+import org.alahijani.lf.lang.TwelfTokenType;
 
 import java.util.Arrays;
 import java.util.List;

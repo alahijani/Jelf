@@ -3,7 +3,7 @@ package org.alahijani.lf.editor;
 import com.intellij.lang.CodeDocumentationAwareCommenter;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.tree.IElementType;
-import org.alahijani.lf.TwelfTokenType;
+import org.alahijani.lf.lang.TwelfTokenType;
 import org.jetbrains.annotations.Nullable;
 
 /**

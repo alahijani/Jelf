@@ -1,7 +1,7 @@
 package org.alahijani.lf.parser;
 
 import com.intellij.psi.tree.IElementType;
-import org.alahijani.lf.TwelfElementType;
+import org.alahijani.lf.lang.TwelfElementType;
 
 /**
  * @author Ali Lahijani

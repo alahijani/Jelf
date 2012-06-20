@@ -1,4 +1,4 @@
-package org.alahijani.lf;
+package org.alahijani.lf.lang;
 
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class TwelfSyntaxHighlighter extends SyntaxHighlighterBase {
     private static final Map<IElementType, TextAttributesKey> ourMap1;
-    private static final Map<IElementType, TextAttributesKey> ourMap2;
+    private static final Map<IElementType, TextAttributesKey> ourMap2;  // maybe will be used in the future
 
     static {
         ourMap1 = new HashMap<IElementType, TextAttributesKey>();
@@ -47,6 +47,9 @@ public class TwelfSyntaxHighlighter extends SyntaxHighlighterBase {
         ourMap1.put(TwelfTokenType.DOT, TwelfHighlighterColors.DOT);
         //ourMap1.put(TwelfTokenType.COMMA, TwelfHighlighterColors.COMMA);
         //ourMap1.put(TwelfTokenType.SEMICOLON, TwelfHighlighterColors.SEMICOLON);
+
+        ourMap1.put(TwelfConfigTokenType.END_OF_LINE_COMMENT, TwelfHighlighterColors.LINE_COMMENT);
+
     }
 
     @NotNull

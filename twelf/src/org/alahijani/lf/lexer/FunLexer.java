@@ -5,7 +5,7 @@ package org.alahijani.lf.lexer;
 * Lexer *
 * Author: Frank Pfenning *
 * Modified: Brigitte Pientka
-* @author Ali Lahijani
+* @author Java translation: Ali Lahijani
 */
 public class FunLexer {
 //

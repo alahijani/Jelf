@@ -2,7 +2,7 @@ package org.alahijani.lf.lexer;
 
 import com.intellij.ide.highlighter.custom.AbstractCustomLexer;
 import com.intellij.ide.highlighter.custom.tokens.*;
-import org.alahijani.lf.TwelfTokenType;
+import org.alahijani.lf.lang.TwelfTokenType;
 
 import java.util.*;
 
@@ -21,9 +21,10 @@ public class TwelfLexer extends AbstractCustomLexer {
         parsers.add(new WhitespaceParser());
         parsers.add(LineCommentParser.create("%%"));
         parsers.add(LineCommentParser.create("%\t"));
-        parsers.add(LineCommentParser.create("% "));                    // todo actually should be % followed by any whitespace
+        parsers.add(LineCommentParser.create("% "));                    // todo maybe % followed by any whitespace?
+        parsers.add(new LineNoCommentParser("%"));
         parsers.add(MultilineCommentParser.create("%{", "}%"));
-        // parsers.add(MultilineCommentParser.create("%.", <EOF>));     // todo implement %.
+        parsers.add(new EndOfFileCommentParser("%."));
 
         parsers.add(new IdentifierTokenParser());
         parsers.add(new QuotedStringParser("\"", TwelfTokenType.STRING_LITERAL, false));

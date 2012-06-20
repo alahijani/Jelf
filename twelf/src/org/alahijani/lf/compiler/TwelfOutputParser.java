@@ -33,12 +33,14 @@ public class TwelfOutputParser implements Runnable {
         }
     }
 
-    private static Pattern ERROR_PATTERN = Pattern.compile("(\\w:)?([^:]+):" +
+    private static final Pattern ERROR_PATTERN = Pattern.compile("(\\w:)?([^:]+):" +
             "(\\d+)\\.(\\d+)-" +
             "(\\d+)\\.(\\d+)" +
             "\\s*Error:.*");
 
-    private static Pattern INFO_PATTERN = Pattern.compile("\\[(Opening|Closing) file (\\w:)?([^:]+)\\]");
+    private static final Pattern INFO_PATTERN = Pattern.compile("\\[(Opening|Closing) file (\\w:)?([^:]+)\\]");
+
+    private static final Pattern EXCEPTION_PATTERN = Pattern.compile("Uncaught exception: (.*)");
 
     private void parseOutput() throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
@@ -46,8 +48,8 @@ public class TwelfOutputParser implements Runnable {
         try {
             String error = null;
             String url = null;
-            Integer lineNum = null;
-            Integer columnNum = null;
+            int lineNum = -1;
+            int columnNum = -1;
 
             for (String line = in.readLine(); line != null; line = in.readLine()) {
 
@@ -73,15 +75,24 @@ public class TwelfOutputParser implements Runnable {
 
                 m = INFO_PATTERN.matcher(line);
                 if (m.matches()) {
-                    // String drive = m.group(2);
-                    // String filePath = m.group(3);
-                    // context.addMessage(CompilerMessageCategory.STATISTICS, line, getURL(drive, filePath), -1, -1);
+                    String drive = m.group(2);
+                    String filePath = m.group(3);
+                    url = getURL(drive, filePath);
+                    // context.addMessage(CompilerMessageCategory.STATISTICS, line, url, -1, -1);
+                    continue;
+                }
+
+                m = EXCEPTION_PATTERN.matcher(line);
+                if (m.matches()) {
+                    error = m.group(1) + "\n";
                     continue;
                 }
 
                 if ("%% ABORT %%".equals(line)) {
                     if (error != null) {
                         addMessage(context, CompilerMessageCategory.ERROR, error, url, lineNum, columnNum);
+                    } else {
+                        addMessage(context, CompilerMessageCategory.ERROR, "Compilation aborted", url, -1, -1);
                     }
                     error = null;       // end error mode
                     continue;
@@ -108,21 +119,23 @@ public class TwelfOutputParser implements Runnable {
     }
 
     private void addMessage(CompileContext context, CompilerMessageCategory category,
-                            String message, String url, Integer lineNum, Integer columnNum) {
-        VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
-        Document document = file == null ? null : FileDocumentManager.getInstance().getDocument(file);
-        if (document != null) {
-            String lineText = getLineText(lineNum, document);
-            columnNum--;    // make it zero-based
-            columnNum = adjustForUTF8(lineText, columnNum);
-            columnNum = adjustForTabs(lineText, columnNum);
-            columnNum++;    // back to one-based
+                            String message, String url, int lineNum, int columnNum) {
+        if (lineNum > 0) {
+            VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
+            Document document = file == null ? null : FileDocumentManager.getInstance().getDocument(file);
+            if (document != null) {
+                String lineText = getLineText(lineNum, document);
+                columnNum--;    // make it zero-based
+                columnNum = adjustForUTF8(lineText, columnNum);
+                columnNum = adjustForTabs(lineText, columnNum);
+                columnNum++;    // back to one-based
+            }
         }
         context.addMessage(category, message, url, lineNum, columnNum);
     }
 
-    private String getLineText(Integer lineNum, Document document) {
-        int docLine = lineNum == 0 ? 0 : lineNum - 1;
+    private String getLineText(int lineNum, Document document) {
+        int docLine = lineNum - 1;
         int startOffset = document.getLineStartOffset(docLine);
         int endOffset = document.getLineEndOffset(docLine);
         return document.getText().substring(startOffset, endOffset);
@@ -143,7 +156,7 @@ public class TwelfOutputParser implements Runnable {
      * @param utf8Index zero-based index of UTF-8 bytes
      * @return zero-based index of normal Java UTF-16 characters
      */
-    private int adjustForUTF8(String text, Integer utf8Index) {
+    private int adjustForUTF8(String text, int utf8Index) {
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             OutputStreamWriter writer = new OutputStreamWriter(os);

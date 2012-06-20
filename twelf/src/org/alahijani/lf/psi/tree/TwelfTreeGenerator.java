@@ -6,7 +6,7 @@ import com.intellij.psi.impl.source.tree.Factory;
 import com.intellij.psi.impl.source.tree.TreeElement;
 import com.intellij.psi.impl.source.tree.TreeGenerator;
 import com.intellij.util.CharTable;
-import org.alahijani.lf.TwelfTokenType;
+import org.alahijani.lf.lang.TwelfTokenType;
 import org.alahijani.lf.psi.light.LightIdentifier;
 import org.alahijani.lf.psi.light.LightLfDeclaration;
 

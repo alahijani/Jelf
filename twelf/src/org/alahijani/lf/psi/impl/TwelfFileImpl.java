@@ -3,7 +3,7 @@ package org.alahijani.lf.psi.impl;
 import com.intellij.extapi.psi.PsiFileBase;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
-import org.alahijani.lf.Twelf;
+import org.alahijani.lf.lang.Twelf;
 import org.alahijani.lf.TwelfIcons;
 import org.alahijani.lf.fileTypes.TwelfFileType;
 import org.alahijani.lf.psi.api.TwelfFile;

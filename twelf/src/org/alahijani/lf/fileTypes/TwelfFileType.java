@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.alahijani.lf.Twelf;
+import org.alahijani.lf.lang.Twelf;
 import org.alahijani.lf.TwelfIcons;
 import org.alahijani.lf.editor.TwelfEditorHighlighter;
 import org.jetbrains.annotations.NotNull;

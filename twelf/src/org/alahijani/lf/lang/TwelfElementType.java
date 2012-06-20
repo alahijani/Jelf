@@ -1,4 +1,4 @@
-package org.alahijani.lf;
+package org.alahijani.lf.lang;
 
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
@@ -7,6 +7,8 @@ import org.alahijani.lf.psi.tree.ITwelfElementType;
 
 
 public interface TwelfElementType extends TokenType {
+
+    IElementType TWELF_FILE = TwelfParserDefinition.TWELF_FILE;
 
     IElementType LF_DECLARATION_STATEMENT = new ITwelfElementType("Lf declaration statement");
 
@@ -32,4 +34,8 @@ public interface TwelfElementType extends TokenType {
     IElementType STRING_EXPRESSION = new ITwelfElementType("String literal expression");
 
     IElementType LF_DECLARATION = new LfDeclarationElementType("Lf declaration");
+
+    IElementType TWELF_CONFIG_FILE = TwelfConfigParserDefinition.TWELF_CONFIG_FILE;
+    IElementType TWELF_FILE_REFERENCE = new IElementType("Twelf file reference", TwelfConfig.INSTANCE);
+    IElementType FILE_NAME = new IElementType("Twelf file name", TwelfConfig.INSTANCE);
 }

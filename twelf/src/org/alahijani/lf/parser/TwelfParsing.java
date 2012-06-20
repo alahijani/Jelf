@@ -3,14 +3,14 @@ package org.alahijani.lf.parser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.psi.tree.IElementType;
 import org.alahijani.lf.TwelfBundle;
-import org.alahijani.lf.TwelfElementType;
+import org.alahijani.lf.lang.TwelfElementType;
 import org.alahijani.lf.lexer.TwelfLexer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.alahijani.lf.TwelfTokenType.*;
+import static org.alahijani.lf.lang.TwelfTokenType.*;
 
 /**
  * @author Ali Lahijani
