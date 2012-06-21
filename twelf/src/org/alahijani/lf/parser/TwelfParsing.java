@@ -476,8 +476,9 @@ public class TwelfParsing {
                 builder.advanceLexer();
             } else {
                 PsiBuilder.Marker marker = builder.mark();
+                String unexpected = builder.getTokenText();
                 builder.advanceLexer();
-                marker.error(TwelfBundle.message("unexpected.token", builder.getTokenText()));
+                marker.error(TwelfBundle.message("unexpected.token", unexpected));
                 errorUnexpected = false;    // just one error is enough
             }
         } while (true);

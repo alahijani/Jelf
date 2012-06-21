@@ -29,8 +29,9 @@ public class TwelfConfigParsing {
             eatElement(TwelfElementType.FILE_NAME);
             marker.done(TwelfElementType.TWELF_FILE_REFERENCE);
         } else {
+            String unexpected = builder.getTokenText();
             builder.advanceLexer();
-            marker.error(TwelfBundle.message("unexpected.token", builder.getTokenText()));
+            marker.error(TwelfBundle.message("unexpected.token", unexpected));
         }
     }
 
