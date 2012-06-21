@@ -17,6 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Note: Current versions of Twelf always use UTF-8 in their output.
+ *
  * @author Ali Lahijani
  */
 public class TwelfOutputParser implements Runnable {
@@ -43,7 +45,7 @@ public class TwelfOutputParser implements Runnable {
     private static final Pattern EXCEPTION_PATTERN = Pattern.compile("Uncaught exception: (.*)");
 
     private void parseOutput() throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 
         try {
             String error = null;
@@ -75,9 +77,19 @@ public class TwelfOutputParser implements Runnable {
 
                 m = INFO_PATTERN.matcher(line);
                 if (m.matches()) {
-                    String drive = m.group(2);
-                    String filePath = m.group(3);
-                    url = getURL(drive, filePath);
+                    if ("Closing".equals(m.group(1))) {
+                        /**
+                         * cannot set to null or to the latest .cfg file because Twelf first declares Closing a
+                         * file and then proceeds to report errors there. May be we should keep two url variables
+                         * TODO: when a filename in a .cfg file cannot be opened we currently report the error at the
+                         * previous file
+                         */
+                        // url = null;
+                    } else if ("Opening".equals(m.group(1))) {
+                        String drive = m.group(2);
+                        String filePath = m.group(3);
+                        url = getURL(drive, filePath);
+                    }
                     // context.addMessage(CompilerMessageCategory.STATISTICS, line, url, -1, -1);
                     continue;
                 }
@@ -120,7 +132,7 @@ public class TwelfOutputParser implements Runnable {
 
     private void addMessage(CompileContext context, CompilerMessageCategory category,
                             String message, String url, int lineNum, int columnNum) {
-        if (lineNum > 0) {
+        if (lineNum > 0 && url != null) {
             VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
             Document document = file == null ? null : FileDocumentManager.getInstance().getDocument(file);
             if (document != null) {
@@ -159,7 +171,7 @@ public class TwelfOutputParser implements Runnable {
     private int adjustForUTF8(String text, int utf8Index) {
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            OutputStreamWriter writer = new OutputStreamWriter(os);
+            OutputStreamWriter writer = new OutputStreamWriter(os, "UTF-8");
             char[] chars = text.toCharArray();
             for (int i = 0; i < chars.length; i++) {
                 if (os.size() >= utf8Index) {
