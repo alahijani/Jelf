@@ -1,9 +1,11 @@
 package org.alahijani.lf.psi.stubs.impl;
 
 import com.intellij.psi.stubs.PsiFileStubImpl;
+import com.intellij.psi.tree.IStubFileElementType;
 import com.intellij.util.io.StringRef;
-import org.alahijani.lf.psi.api.TwelfIdentifierReference;
+import org.alahijani.lf.lang.TwelfConfigParserDefinition;
 import org.alahijani.lf.psi.api.TwelfConfigFile;
+import org.alahijani.lf.psi.api.TwelfIdentifierReference;
 import org.alahijani.lf.psi.stubs.TwelfConfigFileStub;
 
 import java.util.ArrayList;
@@ -29,6 +31,10 @@ public class TwelfConfigFileStubImpl extends PsiFileStubImpl<TwelfConfigFile> im
         super(null);
         this.name = name;
         this.elfList = elfList;
+    }
+
+    public IStubFileElementType getType() {
+        return TwelfConfigParserDefinition.TWELF_CONFIG_FILE;
     }
 
     public StringRef getName() {

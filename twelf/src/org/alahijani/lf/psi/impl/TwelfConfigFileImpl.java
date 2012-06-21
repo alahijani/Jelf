@@ -8,6 +8,7 @@ import org.alahijani.lf.fileTypes.TwelfConfigFileType;
 import org.alahijani.lf.lang.TwelfConfig;
 import org.alahijani.lf.psi.api.TwelfConfigFile;
 import org.alahijani.lf.psi.api.TwelfFile;
+import org.alahijani.lf.psi.api.TwelfFileReference;
 import org.alahijani.lf.psi.api.TwelfIdentifierReference;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,8 +32,8 @@ public class TwelfConfigFileImpl extends PsiFileBase implements TwelfConfigFile 
         return TwelfIcons.TWELF_CONFIG_FILE;
     }
 
-    public TwelfIdentifierReference[] getMemberFiles() {
-        return findChildrenByClass(TwelfIdentifierReference.class);
+    public TwelfFileReference[] getMemberFiles() {
+        return findChildrenByClass(TwelfFileReference.class);
     }
 
     public boolean canReference(TwelfFile user, TwelfFile declaration) {

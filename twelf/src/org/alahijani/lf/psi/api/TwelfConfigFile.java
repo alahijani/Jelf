@@ -7,7 +7,7 @@ import com.intellij.psi.PsiFile;
  */
 public interface TwelfConfigFile extends PsiFile, TwelfConfigElement {
 
-    TwelfIdentifierReference[] getMemberFiles();
+    TwelfFileReference[] getMemberFiles();
 
     boolean canReference(TwelfFile twelf, TwelfFile containingFile);
 }

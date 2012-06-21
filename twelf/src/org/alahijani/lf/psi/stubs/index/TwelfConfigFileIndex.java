@@ -17,7 +17,7 @@ public class TwelfConfigFileIndex extends StringStubIndexExtension<TwelfConfigFi
 
     public static final StubIndexKey<String, TwelfConfigFile> KEY = StubIndexKey.createIndexKey("twelf.cfg");
 
-    public static Collection<TwelfConfigFile> getTwelfConfigFiles(String elfFileName, GlobalSearchScope scope) {
+    public static Collection<TwelfConfigFile> getContainingTwelfConfigFiles(String elfFileName, GlobalSearchScope scope) {
         return StubIndex.getInstance().get(KEY, elfFileName, scope.getProject(), scope);
     }
 

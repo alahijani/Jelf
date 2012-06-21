@@ -1,12 +1,12 @@
 package org.alahijani.lf.psi.stubs.elements;
 
-import com.intellij.psi.stubs.IndexSink;
-import com.intellij.psi.stubs.StubElement;
-import com.intellij.psi.stubs.StubInputStream;
-import com.intellij.psi.stubs.StubOutputStream;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.StubBuilder;
+import com.intellij.psi.stubs.*;
 import com.intellij.psi.tree.IStubFileElementType;
 import com.intellij.util.io.StringRef;
 import org.alahijani.lf.lang.TwelfConfig;
+import org.alahijani.lf.psi.api.TwelfConfigFile;
 import org.alahijani.lf.psi.stubs.TwelfConfigFileStub;
 import org.alahijani.lf.psi.stubs.impl.TwelfConfigFileStubImpl;
 import org.alahijani.lf.psi.stubs.index.TwelfConfigFileIndex;
@@ -25,6 +25,31 @@ public class TwelfConfigStubFileElementType extends IStubFileElementType<TwelfCo
 
     public String getExternalId() {
         return "twelfConfig.FILE";
+    }
+
+    /**
+     * @return a value I guess we have to increase whenever format of <code>twelfConfig.FILE</code> changes and we
+     *         want to require an index rebuild
+     */
+    public int getStubVersion() {
+        return 2;
+    }
+
+    public StubBuilder getBuilder() {
+        return new DefaultStubBuilder() {
+            protected StubElement createStubForFile(final PsiFile file) {
+                if (file instanceof TwelfConfigFile) {
+                    return new TwelfConfigFileStubImpl((TwelfConfigFile) file);
+                }
+
+                return super.createStubForFile(file);
+            }
+        };
+    }
+
+    @Override
+    public void indexStub(PsiFileStub stub, IndexSink sink) {
+        super.indexStub(stub, sink);
     }
 
     public void indexStub(final TwelfConfigFileStub stub, final IndexSink sink) {
