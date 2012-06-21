@@ -38,8 +38,8 @@
         <lang.commenter language="Twelf" implementationClass="org.alahijani.lf.editor.TwelfCommenter"/>
         <lang.psiStructureViewFactory language="Twelf" implementationClass="org.alahijani.lf.structure.TwelfStructureViewFactory"/>
         <lang.namesValidator language="Twelf" implementationClass="org.alahijani.lf.lexer.TwelfNamesValidator" />
-        <!--<lang.findUsagesProvider language="Twelf" implementationClass="TwelfFindUsagesProvider" />-->
-        <!--<lang.elementManipulator forClass="org.alahijani.lf.psi.api.LfIdentifierReference" implementationClass="org.alahijani.lf.psi.xref.LfIdentifierReferenceManipulator"/>-->
+        <lang.findUsagesProvider language="Twelf" implementationClass="org.alahijani.lf.psi.xref.TwelfFindUsagesProvider" />
+        <!--<lang.elementManipulator forClass="org.alahijani.lf.psi.api.TwelfIdentifierReferencence" implementationClass="org.alahijani.lf.psi.xref.LfIdentifierReferenceManipulator"/>-->
         <!--<lang.smartEnterProcessor language="Twelf" implementationClass="org.alahijani.lf.lang.completion.smartEnter.TwelfSmartEnterProcessor"/>-->
         <!--<lang.refactoringSupport language="Twelf" implementationClass="org.alahijani.lf.TwelfRefactoringSupportProvider" />-->
         <!--<lang.formatter language="Twelf" implementationClass="org.alahijani.lf.formatter.TwelfFormattingModelBuilder"/>-->
@@ -60,9 +60,13 @@
         <!--<semContributor implementation=""/>-->
 
         <stubElementTypeHolder class="org.alahijani.lf.lang.TwelfElementType"/>
-        <stubIndex implementation="org.alahijani.lf.psi.stubs.index.LfDeclarationIndex"/>
+        <stubIndex implementation="org.alahijani.lf.psi.stubs.index.LfGlobalVariableIndex"/>
+        <stubIndex implementation="org.alahijani.lf.psi.stubs.index.TwelfConfigFileIndex"/>
 
         <lang.parserDefinition language="TwelfConfig" implementationClass="org.alahijani.lf.lang.TwelfConfigParserDefinition"/>
+        <lang.findUsagesProvider language="TwelfConfig" implementationClass="org.alahijani.lf.psi.xref.TwelfFindUsagesProvider" />
+        <annotator language="TwelfConfig" implementationClass="org.alahijani.lf.annotator.TwelfAnnotator" />
+        <completion.contributor language="TwelfConfig" implementationClass="org.alahijani.lf.completion.TwelfConfigCompletionContributor"/>
 
     </extensions>
 </idea-plugin>

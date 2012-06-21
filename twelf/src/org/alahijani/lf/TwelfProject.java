@@ -11,7 +11,7 @@ import org.alahijani.lf.compiler.TwelfCompiler;
 import org.alahijani.lf.fileTypes.TwelfConfigFileType;
 import org.alahijani.lf.fileTypes.TwelfFileType;
 import org.alahijani.lf.psi.api.LfDeclaration;
-import org.alahijani.lf.psi.api.LfIdentifier;
+import org.alahijani.lf.psi.api.TwelfIdentifier;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -26,7 +26,7 @@ public class TwelfProject implements ProjectComponent {
         treeChangeAdapter = new PsiTreeChangeAdapter() {
             @Override
             public void childReplaced(PsiTreeChangeEvent event) {
-                LfIdentifier identifier = PsiTreeUtil.getParentOfType(event.getNewChild(), LfIdentifier.class);
+                TwelfIdentifier identifier = PsiTreeUtil.getParentOfType(event.getNewChild(), TwelfIdentifier.class);
                 if (identifier == null) {
                     return;
                 }

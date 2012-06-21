@@ -9,13 +9,13 @@ import org.alahijani.lf.lang.Twelf;
 import org.alahijani.lf.lang.TwelfElementType;
 import org.alahijani.lf.lexer.TwelfLexer;
 import org.alahijani.lf.psi.TwelfElementVisitor;
-import org.alahijani.lf.psi.api.LfIdentifier;
+import org.alahijani.lf.psi.api.TwelfIdentifier;
 import org.jetbrains.annotations.NotNull;
 
 /**
  *
  */
-public class LightIdentifier extends LightElement implements LfIdentifier {
+public class LightIdentifier extends LightElement implements TwelfIdentifier {
 
     private String myText;
 

@@ -70,7 +70,7 @@ public class TwelfPsiCreator implements TwelfTokenType {
             return new LambdaExpressionImpl(node);
         }
         if (elem == TwelfElementType.IDENTIFIER) {
-            return new LfIdentifierImpl(node);
+            return new TwelfIdentifierImpl(node);
         }
 
         return new ASTWrapperPsiElement(node);
@@ -81,7 +81,7 @@ public class TwelfPsiCreator implements TwelfTokenType {
         IElementType elem = node.getElementType();
 
         if (elem == TwelfElementType.FILE_NAME) {
-            return new LfIdentifierImpl(node);
+            return new TwelfIdentifierImpl(node);
         }
         if (elem == TwelfElementType.TWELF_FILE_REFERENCE) {
             return new TwelfFileReferenceImpl(node);

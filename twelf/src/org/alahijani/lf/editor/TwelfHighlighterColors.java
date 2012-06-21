@@ -49,6 +49,8 @@ public class TwelfHighlighterColors {
     public static final TextAttributesKey LF_LOCAL_IDENTIFIER = TextAttributesKey.createTextAttributesKey("LF_LOCAL_IDENTIFIER", LOCAL_ATTRIBUTES);
     public static final TextAttributesKey LF_SIGNATURE_IDENTIFIER = TextAttributesKey.createTextAttributesKey("LF_SIGNATURE_IDENTIFIER", HighlightInfoType.METHOD_CALL.getAttributesKey().getDefaultAttributes());
     public static final TextAttributesKey LF_META_VARIABLE = TextAttributesKey.createTextAttributesKey("LF_META_VARIABLE", HighlightInfoType.STATIC_METHOD.getAttributesKey().getDefaultAttributes());
+    public static final TextAttributesKey TWELF_FILE = TextAttributesKey.createTextAttributesKey("LF_SIGNATURE_IDENTIFIER", HighlightInfoType.CLASS_NAME.getAttributesKey().getDefaultAttributes());
+
 
 
 }

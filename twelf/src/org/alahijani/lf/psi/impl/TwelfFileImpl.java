@@ -3,9 +3,10 @@ package org.alahijani.lf.psi.impl;
 import com.intellij.extapi.psi.PsiFileBase;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
-import org.alahijani.lf.lang.Twelf;
+import org.alahijani.lf.TwelfBundle;
 import org.alahijani.lf.TwelfIcons;
 import org.alahijani.lf.fileTypes.TwelfFileType;
+import org.alahijani.lf.lang.Twelf;
 import org.alahijani.lf.psi.api.TwelfFile;
 import org.alahijani.lf.psi.api.TwelfStatement;
 import org.jetbrains.annotations.NotNull;
@@ -33,5 +34,14 @@ public class TwelfFileImpl extends PsiFileBase implements TwelfFile {
     @NotNull
     public TwelfStatement[] getStatements() {
         return findChildrenByClass(TwelfStatement.class);
+    }
+
+    public String getTypeText() {
+        return TwelfBundle.message("terms.file.twelf");
+    }
+
+    @Override
+    public TwelfFile getContainingFile() {
+        return this;
     }
 }

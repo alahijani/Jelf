@@ -4,7 +4,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiManager;
 import org.alahijani.lf.lexer.IdentifierTokenParser;
-import org.alahijani.lf.psi.api.LfIdentifier;
+import org.alahijani.lf.psi.api.TwelfIdentifier;
 import org.alahijani.lf.psi.light.LightIdentifier;
 
 public class TwelfPsiElementFactory {
@@ -18,7 +18,7 @@ public class TwelfPsiElementFactory {
         return ServiceManager.getService(project, TwelfPsiElementFactory.class);
     }
 
-    public LfIdentifier createIdentifier(String text) {
+    public TwelfIdentifier createIdentifier(String text) {
         IdentifierTokenParser.checkIsIdentifier(text);
         return new LightIdentifier(myManager, text);
     }

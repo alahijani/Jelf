@@ -1,14 +1,14 @@
 package org.alahijani.lf.psi.xref;
 
 import com.intellij.psi.AbstractElementManipulator;
-import org.alahijani.lf.psi.api.LfIdentifierReference;
+import org.alahijani.lf.psi.api.TwelfIdentifierReference;
 
 /**
  * @author Ali Lahijani
  */
-public abstract class LfIdentifierReferenceManipulator extends AbstractElementManipulator<LfIdentifierReference> {
+public abstract class LfIdentifierReferenceManipulator extends AbstractElementManipulator<TwelfIdentifierReference> {
 
-//    public LfIdentifierReference handleContentChange(LfIdentifierReference ref, TextRange range, String newContent)
+//    public TwelfIdentifierReference handleContentChange(TwelfIdentifierReference ref, TextRange range, String newContent)
 //            throws IncorrectOperationException {
 //
 //        final StringBuilder replacement = new StringBuilder(ref.getCanonicalText());
@@ -23,7 +23,7 @@ public abstract class LfIdentifierReferenceManipulator extends AbstractElementMa
 //        return ref;
 //    }
 //
-//    public TextRange getRangeInElement(final LfIdentifierReference tag) {
+//    public TextRange getRangeInElement(final TwelfIdentifierReference tag) {
 //        if (tag.getSubTags().length > 0) {
 //            // Text range in tag with subtags is not supported, return empty range, consider making this function nullable.
 //            return new TextRange(0, 0);
@@ -50,7 +50,7 @@ public abstract class LfIdentifierReferenceManipulator extends AbstractElementMa
 //        return trimmed.length() == 0 ? new TextRange(start, start) : new TextRange(start, xmlText.displayToPhysical(i + trimmed.length() - 1) + offset + 1);
 //    }
 //
-//    public static TextRange[] getValueRanges(final @NotNull LfIdentifierReference tag) {
+//    public static TextRange[] getValueRanges(final @NotNull TwelfIdentifierReference tag) {
 //        final LfIdentifierReferenceValue value = tag.getValue();
 //        final XmlText[] texts = value.getTextElements();
 //        if (texts.length == 0) {

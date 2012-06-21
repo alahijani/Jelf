@@ -2,8 +2,8 @@ package org.alahijani.lf.psi.impl;
 
 import com.intellij.lang.ASTNode;
 import org.alahijani.lf.lang.TwelfTokenType;
-import org.alahijani.lf.psi.api.LfIdentifier;
-import org.alahijani.lf.psi.api.LfIdentifierReference;
+import org.alahijani.lf.psi.api.TwelfIdentifier;
+import org.alahijani.lf.psi.api.TwelfIdentifierReference;
 import org.alahijani.lf.psi.api.NameDirective;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,16 +22,16 @@ public class NameDirectiveImpl extends TwelfDirectiveImpl implements NameDirecti
 //        return TwelfIcons.NAME_DIRECTIVE;
 //    }
 
-    public LfIdentifierReference getForType() {
-        return findChildByClass(LfIdentifierReference.class);
+    public TwelfIdentifierReference getForType() {
+        return findChildByClass(TwelfIdentifierReference.class);
     }
 
-    public LfIdentifier getNameIdentifier() {
-        return findChildrenByClass(LfIdentifier.class)[0];
+    public TwelfIdentifier getNameIdentifier() {
+        return findChildrenByClass(TwelfIdentifier.class)[0];
     }
 
-    public LfIdentifier getSecondNameIdentifier() {
-        LfIdentifier[] childrenByClass = findChildrenByClass(LfIdentifier.class);
+    public TwelfIdentifier getSecondNameIdentifier() {
+        TwelfIdentifier[] childrenByClass = findChildrenByClass(TwelfIdentifier.class);
         return childrenByClass.length > 1 ? childrenByClass[1] : null;
     }
 

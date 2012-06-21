@@ -5,9 +5,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author Ali Lahijani
  */
-public interface MetaVariableBinder extends LfTerm {
-
+public interface ReferableElement extends TwelfElement {
     @NotNull
-    LfMetaVariable getProvisionalMeta(String name);
+    String getName();
+
+    String getTypeText();
 
 }

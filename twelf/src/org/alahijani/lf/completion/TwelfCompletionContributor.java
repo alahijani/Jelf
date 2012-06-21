@@ -37,7 +37,7 @@ public class TwelfCompletionContributor extends CompletionContributor {
                 final PsiElement position = parameters.getPosition();
                 final PsiElement reference = position.getParent();
                 if (reference == null) return;
-                if (reference instanceof TwelfElement) {
+                if (reference instanceof TwelfBaseElement) {
                     Referencing.lookup(reference, result);
                 }
             }
@@ -60,7 +60,7 @@ public class TwelfCompletionContributor extends CompletionContributor {
                                           @NotNull CompletionResultSet result) {
                 System.out.println("parameters = " + parameters);
 /*
-                final LfIdentifierReference refExpr = ((LfIdentifierReference) parameters.getPosition().getParent());
+                final TwelfIdentifierReference refExpr = ((TwelfIdentifierReference) parameters.getPosition().getParent());
                 if (refExpr.getQualifier() != null) return;
                 final TwelfArgumentList argumentList = (TwelfArgumentList) refExpr.getParent();
                 final TwelfCall call = (TwelfCall) argumentList.getParent();

@@ -5,11 +5,9 @@ import com.intellij.lang.parameterInfo.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.alahijani.lf.psi.api.ApplicationExpression;
-import org.alahijani.lf.psi.api.LfDeclaration;
-import org.alahijani.lf.psi.api.LfTerm;
-import org.alahijani.lf.psi.api.PiType;
+import org.alahijani.lf.psi.api.*;
 import org.alahijani.lf.psi.xref.LfLookupItem;
+import org.alahijani.lf.formatter.TwelfFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -114,7 +112,7 @@ public class TwelfParameterInfoHandler implements ParameterInfoHandler/*WithTabA
 
         // curry Pi types
         LfTerm type = function.getType();
-        ArrayList<LfDeclaration> params = new ArrayList<LfDeclaration>();
+        ArrayList<LfLocalVariable> params = new ArrayList<LfLocalVariable>();
         while (type instanceof PiType) {
             PiType pi = (PiType) type;
             params.add(pi.getBoundDeclaration());
@@ -132,7 +130,7 @@ public class TwelfParameterInfoHandler implements ParameterInfoHandler/*WithTabA
 
         // final PsiSubstitutor substitutor = function.getSubstitutor();
         for (int j = 0; j < size; j++) {
-            LfDeclaration param = params.get(j);
+            LfLocalVariable param = params.get(j);
 
             int startOffset = buffer.length();
             appendParameterText(param, /*substitutor,*/ buffer);
@@ -146,7 +144,7 @@ public class TwelfParameterInfoHandler implements ParameterInfoHandler/*WithTabA
 
         // append the return type
         buffer.append("\t");
-        buffer.append(type == null ? "< unknown >" : type.getText());
+        buffer.append(TwelfFormatter.format(type));
 
         final boolean isDeprecated = false;
         context.setupUIComponentPresentation(
@@ -160,7 +158,7 @@ public class TwelfParameterInfoHandler implements ParameterInfoHandler/*WithTabA
         );
     }
 
-    private void appendParameterText(LfDeclaration param, StringBuffer buffer) {
+    private void appendParameterText(LfLocalVariable param, StringBuffer buffer) {
         // if (param.isAnonymous() && param.getType() != null) {
         //     buffer.append(param.getType().getText());
         //     buffer.append(" -> ");
@@ -173,23 +171,28 @@ public class TwelfParameterInfoHandler implements ParameterInfoHandler/*WithTabA
 
     public Object[] getParametersForLookup(LookupElement item, ParameterInfoContext context) {
         if (item instanceof LfLookupItem) {
-            LfDeclaration function = ((LfLookupItem) item).getDeclaration();
-            return new Object[]{function};
+            ReferableElement target = ((LfLookupItem) item).getDeclaration();
+            if (target instanceof LfDeclaration) {
+                return getParams(((LfDeclaration) target).getType());
+            }
         }
 
         return null;
     }
 
     public Object[] getParametersForDocumentation(LfDeclaration function, ParameterInfoContext context) {
-        ArrayList<LfDeclaration> params = new ArrayList<LfDeclaration>();
+        return getParams(function.getType());
+    }
 
-        LfTerm type = function.getType();
+    private LfLocalVariable[] getParams(LfTerm type) {
+        ArrayList<LfLocalVariable> params = new ArrayList<LfLocalVariable>();
+
         while (type instanceof PiType) {
             PiType pi = (PiType) type;
             params.add(pi.getBoundDeclaration());
             type = pi.getReturnType();
         }
-        return params.toArray(new Object[params.size()]);
+        return params.toArray(new LfLocalVariable[params.size()]);
     }
 
 }

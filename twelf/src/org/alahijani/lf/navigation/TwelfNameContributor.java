@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.ArrayUtil;
-import org.alahijani.lf.psi.stubs.index.LfDeclarationIndex;
+import org.alahijani.lf.psi.stubs.index.LfGlobalVariableIndex;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,7 +19,7 @@ import java.util.Set;
 public class TwelfNameContributor implements ChooseByNameContributor {
     public String[] getNames(Project project, boolean includeNonProjectItems) {
         Set<String> symbols = new HashSet<String>();
-        symbols.addAll(StubIndex.getInstance().getAllKeys(LfDeclarationIndex.KEY, project));
+        symbols.addAll(StubIndex.getInstance().getAllKeys(LfGlobalVariableIndex.KEY, project));
         return ArrayUtil.toStringArray(symbols);
     }
 
@@ -27,7 +27,7 @@ public class TwelfNameContributor implements ChooseByNameContributor {
         GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
 
         List<NavigationItem> symbols = new ArrayList<NavigationItem>();
-        symbols.addAll(StubIndex.getInstance().get(LfDeclarationIndex.KEY, name, project, scope));
+        symbols.addAll(StubIndex.getInstance().get(LfGlobalVariableIndex.KEY, name, project, scope));
 
         return symbols.toArray(new NavigationItem[symbols.size()]);
     }

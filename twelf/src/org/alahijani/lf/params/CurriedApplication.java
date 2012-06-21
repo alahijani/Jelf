@@ -1,7 +1,7 @@
 package org.alahijani.lf.params;
 
 import org.alahijani.lf.psi.api.ApplicationExpression;
-import org.alahijani.lf.psi.api.LfIdentifierReference;
+import org.alahijani.lf.psi.api.TwelfIdentifierReference;
 import org.alahijani.lf.psi.api.LfTerm;
 
 import java.util.LinkedList;
@@ -12,10 +12,10 @@ import java.util.LinkedList;
 public class CurriedApplication /*extends LightElement implements PsiElement*/ {
 
     public final ApplicationExpression application;
-    public final LfIdentifierReference head;
+    public final TwelfIdentifierReference head;
     public final LfTerm[] arguments;
 
-    public CurriedApplication(ApplicationExpression application, LfIdentifierReference head, LfTerm[] arguments) {
+    public CurriedApplication(ApplicationExpression application, TwelfIdentifierReference head, LfTerm[] arguments) {
         // super(application.getManager(), Twelf.INSTANCE);
         this.application = application;
         this.head = head;
@@ -38,10 +38,10 @@ public class CurriedApplication /*extends LightElement implements PsiElement*/ {
             LfTerm function = app.getFunction();
             LfTerm argument = app.getArgument();
             args.add(0, argument);
-            if (function instanceof LfIdentifierReference) {
+            if (function instanceof TwelfIdentifierReference) {
                 return new CurriedApplication(
                         application,
-                        (LfIdentifierReference) function,
+                        (TwelfIdentifierReference) function,
                         args.toArray(new LfTerm[args.size()])
                 );
             } else if (function instanceof ApplicationExpression) {

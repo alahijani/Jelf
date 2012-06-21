@@ -18,22 +18,32 @@ import java.util.Map;
  */
 public class AbbrevDirectiveImpl extends TwelfDirectiveImpl implements GlobalVariableBinder {
 
-    private Map<String, LfMetaVariable> metaVariables = new LinkedHashMap<String, LfMetaVariable>();
+    private final Map<String, LfMetaVariable> metaVariables = new LinkedHashMap<String, LfMetaVariable>();
 
     public AbbrevDirectiveImpl(@NotNull ASTNode node) {
         super(node);
         assert getDirectiveName().equals(TwelfTokenType.D_ABBREV);
     }
 
-    public LfMetaVariable getMeta(String name) {
-        return metaVariables.get(name);
-    }
+    @NotNull
+    public LfMetaVariable getProvisionalMeta(String name) {
+        LfMetaVariable metaVariable = metaVariables.get(name);
+        if (metaVariable != null) {
+            return metaVariable;
+        }
 
-    public LfMetaVariable declareMeta(String name) {
-        LfMetaVariable declaration = LightLfDeclaration.declareMeta(this, name);
-        // add(declaration);
-        metaVariables.put(name, declaration);
-        return declaration;
+        LfMetaVariable candidate = LightLfDeclaration.createMeta(this, name);
+        synchronized (metaVariables) {
+            LfMetaVariable doubleCheck = metaVariables.get(name);
+            if (doubleCheck == null) {      // if still null
+                metaVariables.put(name, candidate);
+                // add(declaration);
+                return candidate;
+            } else {
+                // return the newly added object from the other thread
+                return doubleCheck;
+            }
+        }
     }
 
     public LfGlobalVariable getDeclaration() {

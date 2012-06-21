@@ -1,36 +1,40 @@
 package org.alahijani.lf.psi.xref;
 
+import com.intellij.codeInsight.PsiEquivalenceUtil;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.CompletionSorter;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.lookup.LookupElementWeigher;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.ResolveResult;
 import org.alahijani.lf.lexer.TwelfLexer;
 import org.alahijani.lf.psi.TwelfElementVisitor;
 import org.alahijani.lf.psi.api.*;
+import org.alahijani.lf.psi.stubs.index.LfGlobalVariableIndex;
+import org.alahijani.lf.psi.stubs.index.TwelfConfigFileIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Ali Lahijani
  */
 public class Referencing {
 
-/*
     @NotNull
-    public static ResolveResult[] multiResolveTarget(LfIdentifierReference reference) {
+    public static ResolveResult[] multiResolveTarget(TwelfIdentifierReference reference) {
         @NotNull String name = reference.getText();
+
         if (TwelfLexer.isAnonymousIdentifier(name)) {
             return new ResolveResult[0];    // TODO implement term reconstruction
         }
         boolean isUppercase = TwelfLexer.isUppercaseIdentifier(name);
 
-        MetaVariableBinder metaVariableBinder = null;
+        LfMetaVariable meta = null;
         LfDeclaration beingDeclared = null;
         PsiElement element = reference;
 
@@ -38,9 +42,9 @@ public class Referencing {
 
             if (element instanceof LocalVariableBinder) {
                 LocalVariableBinder binder = (LocalVariableBinder) element;
-                LfDeclaration declaration = binder.getBoundDeclaration();
-                if (declaration != beingDeclared && name.equals(declaration.getName())) {
-                    return new ResolveResult[]{new PsiElementResolveResult(declaration)};
+                LfLocalVariable local = binder.getBoundDeclaration();
+                if (local != beingDeclared && name.equals(local.getName())) {
+                    return new ResolveResult[]{new PsiElementResolveResult(local)};
                 }
                 continue;
             }
@@ -49,36 +53,49 @@ public class Referencing {
                 continue;
             }
             if (isUppercase && element instanceof MetaVariableBinder) {
-                metaVariableBinder = (MetaVariableBinder) element;
-                LfDeclaration meta = metaVariableBinder.getMeta(name);
-                if (meta != null) {
-                    return meta;
+                MetaVariableBinder binder = (MetaVariableBinder) element;
+                meta = binder.getProvisionalMeta(name);
+                if (meta.isCommitted()) {                           // todo: buggy optimization!
+                    return new ResolveResult[]{new PsiElementResolveResult(meta)};
                 }
-*/
                 /**
                  * should also check TwelfStatement, so no continue
                  */
-/*
             }
             if (element instanceof TwelfStatement) {
-                Map<String, LfGlobalVariable> globals = ((TwelfStatement) element).getGlobalVariablesBefore();
-                LfDeclaration global = globals.get(name);
-                if (global != null) {
-                    return global;
+                Collection<LfGlobalVariable> globals = LfGlobalVariableIndex.getLfGlobalVariables(name, reference.getResolveScope());
+
+                ArrayList<PsiElementResolveResult> results = new ArrayList<PsiElementResolveResult>(globals.size() + 1);
+                for (LfGlobalVariable global : globals) {
+                    results.add(new PsiElementResolveResult(global, canReference((TwelfStatement)element, global)));
+                }
+                if (meta != null) {
+                    results.add(new PsiElementResolveResult(meta));
                 }
 
-                if (metaVariableBinder != null) {
-                    // assert isUppercase;
-                    return metaVariableBinder.declareMeta(name);
-                }
+                return results.toArray(new ResolveResult[results.size()]);
             }
-            if (element == null) return null;
+            if (element == null || element instanceof PsiFile) return ResolveResult.EMPTY_ARRAY;
         }
     }
-*/
+
+    private static boolean canReference(TwelfStatement position, LfGlobalVariable global) {
+        TwelfFile twelf = position.getContainingFile();
+        if (PsiEquivalenceUtil.areElementsEquivalent(twelf, global.getContainingFile())) {
+            return position.getTextOffset() > global.getTextOffset();
+        }
+
+        Collection<TwelfConfigFile> configFiles =
+                TwelfConfigFileIndex.getTwelfConfigFiles(twelf.getName(), twelf.getResolveScope());
+        boolean can = true;
+        for (TwelfConfigFile configFile : configFiles) {
+            can &= configFile.canReference(twelf, global.getContainingFile());
+        }
+        return can;
+    }
 
     @Nullable
-    public static LfDeclaration resolveTarget(LfIdentifierReference reference) {
+    public static ReferableElement resolveTarget(TwelfIdentifierReference reference) {
 
         @NotNull String name = reference.getText();
         if (TwelfLexer.isAnonymousIdentifier(name)) {
@@ -86,7 +103,7 @@ public class Referencing {
         }
         boolean isUppercase = TwelfLexer.isUppercaseIdentifier(name);
 
-        MetaVariableBinder metaVariableBinder = null;
+        LfMetaVariable meta = null;
         LfDeclaration beingDeclared = null;
         PsiElement element = reference;
 
@@ -105,9 +122,9 @@ public class Referencing {
                 continue;
             }
             if (isUppercase && element instanceof MetaVariableBinder) {
-                metaVariableBinder = (MetaVariableBinder) element;
-                LfDeclaration meta = metaVariableBinder.getMeta(name);
-                if (meta != null) {
+                MetaVariableBinder binder = (MetaVariableBinder) element;
+                meta = binder.getProvisionalMeta(name);
+                if (meta.isCommitted()) {
                     return meta;
                 }
                 /**
@@ -121,9 +138,10 @@ public class Referencing {
                     return global;
                 }
 
-                if (metaVariableBinder != null) {
+                if (meta != null) {
                     // assert isUppercase;
-                    return metaVariableBinder.declareMeta(name);
+                    meta.commit();
+                    return meta;
                 }
             }
             if (element == null) return null;
@@ -169,7 +187,9 @@ public class Referencing {
                     Set<String> metaCandidates = getMetaCandidates(metaVariableBinder);
                     for (String candidate : metaCandidates) {
                         if (!globals.containsKey(candidate)) {
-                            result.addElement(new LfLookupItem(metaVariableBinder.declareMeta(candidate), order++));
+                            LfMetaVariable meta = metaVariableBinder.getProvisionalMeta(candidate);
+                            meta.commit();
+                            result.addElement(new LfLookupItem(meta, order++));
                         }
                     }
                 }
@@ -197,8 +217,8 @@ public class Referencing {
             }
 
             @Override
-            public void visitReference(LfIdentifierReference reference) {
-                LfIdentifier identifier = reference.getIdentifier();
+            public void visitReference(TwelfIdentifierReference reference) {
+                TwelfIdentifier identifier = reference.getIdentifier();
                 if (identifier.isUppercase() && !identifier.isAnonymous()) {
                     metaCandidates.add(identifier.getText());
                 }
@@ -219,7 +239,7 @@ public class Referencing {
                 }
             });
 
-    public static void rename(LfIdentifier identifier, String newElementName) {
+    public static void rename(TwelfIdentifier identifier, String newElementName) {
         if (identifier != null) {
             identifier.setText(newElementName);
         }

@@ -9,7 +9,7 @@ import com.intellij.psi.impl.source.tree.TreeCopyHandler;
 import com.intellij.psi.impl.source.tree.TreeElement;
 import com.intellij.util.IncorrectOperationException;
 import org.alahijani.lf.lang.TwelfElementType;
-import org.alahijani.lf.psi.api.LfIdentifierReference;
+import org.alahijani.lf.psi.api.TwelfIdentifierReference;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public class TwelfChangeUtilSupport implements TreeCopyHandler {
     public TreeElement decodeInformation(TreeElement element, final Map<Object, Object> decodingState) {
         if (element instanceof CompositeElement) {
             if (element.getElementType() == TwelfElementType.REFERENCE_EXPRESSION) {
-                LfIdentifierReference ref = (LfIdentifierReference) SourceTreeToPsiMap.treeElementToPsi(element);
+                TwelfIdentifierReference ref = (TwelfIdentifierReference) SourceTreeToPsiMap.treeElementToPsi(element);
                 final PsiMember refMember = element.getCopyableUserData(REFERENCED_MEMBER_KEY);
                 if (refMember != null) {
                     element.putCopyableUserData(REFERENCED_MEMBER_KEY, null);
@@ -26,7 +26,7 @@ public class TwelfChangeUtilSupport implements TreeCopyHandler {
                     if (!refMember.getManager().areElementsEquivalent(refMember, refElement)) {
                         try {
                             // can restore only if short (otherwise qualifier should be already restored)
-                            ref = (LfIdentifierReference) ref.bindToElement(refMember);
+                            ref = (TwelfIdentifierReference) ref.bindToElement(refMember);
                         } catch (IncorrectOperationException ignored) {
                         }
                         return (TreeElement) SourceTreeToPsiMap.psiElementToTree(ref);
@@ -41,7 +41,7 @@ public class TwelfChangeUtilSupport implements TreeCopyHandler {
     public void encodeInformation(final TreeElement element, final ASTNode original, final Map<Object, Object> encodingState) {
         if (original instanceof CompositeElement) {
             if (original.getElementType() == TwelfElementType.REFERENCE_EXPRESSION) {
-                PsiElement result = ((LfIdentifierReference) original.getPsi()).resolve();
+                PsiElement result = ((TwelfIdentifierReference) original.getPsi()).resolve();
                 if (result != null) {
                     element.putCopyableUserData(REFERENCED_MEMBER_KEY, (PsiMember) result);
                 }

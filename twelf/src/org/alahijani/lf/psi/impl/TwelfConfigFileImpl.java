@@ -7,6 +7,8 @@ import org.alahijani.lf.TwelfIcons;
 import org.alahijani.lf.fileTypes.TwelfConfigFileType;
 import org.alahijani.lf.lang.TwelfConfig;
 import org.alahijani.lf.psi.api.TwelfConfigFile;
+import org.alahijani.lf.psi.api.TwelfFile;
+import org.alahijani.lf.psi.api.TwelfIdentifierReference;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -29,4 +31,26 @@ public class TwelfConfigFileImpl extends PsiFileBase implements TwelfConfigFile 
         return TwelfIcons.TWELF_CONFIG_FILE;
     }
 
+    public TwelfIdentifierReference[] getMemberFiles() {
+        return findChildrenByClass(TwelfIdentifierReference.class);
+    }
+
+    public boolean canReference(TwelfFile user, TwelfFile declaration) {
+        boolean declared = false;
+        for (TwelfIdentifierReference member : getMemberFiles()) {
+            if (!declared && member.getCanonicalText().equals(declaration.getName())) {
+                declared = true;
+            }
+            if (member.getCanonicalText().equals(user.getName())) {
+                return declared;
+            }
+        }
+
+        throw new IllegalArgumentException("Not a member file: " + user.getName());
+    }
+
+    @Override
+    public TwelfConfigFile getContainingFile() {
+        return this;
+    }
 }

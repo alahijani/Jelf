@@ -2,17 +2,13 @@ package org.alahijani.lf.psi.api;
 
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiNamedElement;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Ali Lahijani
  */
-public interface LfDeclaration extends LfElement, NavigatablePsiElement, PsiNamedElement {
+public interface LfDeclaration extends ReferableElement, NavigatablePsiElement, PsiNamedElement {
 
-    @NotNull
-    String getName();
-
-    LfIdentifier getNameIdentifier();
+    TwelfIdentifier getNameIdentifier();
 
     LfTerm getType();
 

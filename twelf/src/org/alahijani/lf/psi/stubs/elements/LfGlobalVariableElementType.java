@@ -2,6 +2,7 @@ package org.alahijani.lf.psi.stubs.elements;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.stubs.IndexSink;
 import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.stubs.StubInputStream;
 import com.intellij.psi.stubs.StubOutputStream;
@@ -10,6 +11,7 @@ import org.alahijani.lf.psi.api.LfGlobalVariable;
 import org.alahijani.lf.psi.impl.LfGlobalVariableImpl;
 import org.alahijani.lf.psi.stubs.LfGlobalVariableStub;
 import org.alahijani.lf.psi.stubs.impl.LfGlobalVariableStubImpl;
+import org.alahijani.lf.psi.stubs.index.LfGlobalVariableIndex;
 
 import java.io.IOException;
 
@@ -44,4 +46,8 @@ public class LfGlobalVariableElementType extends TwelfStubElementType<LfGlobalVa
         return new LfGlobalVariableStubImpl(parentStub, this, dataStream.readName().getString());
     }
 
+    @Override
+    public void indexStub(LfGlobalVariableStub stub, IndexSink sink) {
+        sink.occurrence(LfGlobalVariableIndex.KEY, stub.getName());
+    }
 }

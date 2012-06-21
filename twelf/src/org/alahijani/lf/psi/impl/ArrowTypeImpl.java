@@ -23,7 +23,7 @@ public abstract class ArrowTypeImpl extends TwelfElementImpl implements PiType {
 
     public LfLocalVariable getBoundDeclaration() {
         if (declaration == null) {
-            declaration = LightLfDeclaration.declareAnonymousLocal(this, getParameterType());
+            declaration = LightLfDeclaration.createAnonymousLocal(this, getParameterType());
         }
         return declaration;
     }

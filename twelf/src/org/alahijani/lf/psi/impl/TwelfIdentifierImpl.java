@@ -8,14 +8,14 @@ import com.intellij.util.CharTable;
 import org.alahijani.lf.lang.TwelfTokenType;
 import org.alahijani.lf.lexer.TwelfLexer;
 import org.alahijani.lf.psi.TwelfElementVisitor;
-import org.alahijani.lf.psi.api.LfIdentifier;
+import org.alahijani.lf.psi.api.TwelfIdentifier;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Ali Lahijani
  */
-public class LfIdentifierImpl extends TwelfElementImpl implements LfIdentifier {
-    public LfIdentifierImpl(@NotNull ASTNode node) {
+public class TwelfIdentifierImpl extends TwelfBaseElementImpl implements TwelfIdentifier {
+    public TwelfIdentifierImpl(@NotNull ASTNode node) {
         super(node);
     }
 

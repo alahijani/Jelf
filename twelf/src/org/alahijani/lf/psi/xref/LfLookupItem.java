@@ -1,7 +1,9 @@
 package org.alahijani.lf.psi.xref;
 
 import com.intellij.codeInsight.lookup.LookupElement;
-import org.alahijani.lf.psi.api.LfDeclaration;
+import com.intellij.codeInsight.lookup.LookupElementPresentation;
+import com.intellij.openapi.util.Iconable;
+import org.alahijani.lf.psi.api.ReferableElement;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -9,14 +11,14 @@ import org.jetbrains.annotations.NotNull;
  */
 public class LfLookupItem extends LookupElement {
 
-    private LfDeclaration declaration;
+    private ReferableElement declaration;
     private int order = Integer.MAX_VALUE;
 
-    public LfLookupItem(LfDeclaration declaration) {
+    public LfLookupItem(ReferableElement declaration) {
         this.declaration = declaration;
     }
 
-    public LfLookupItem(LfDeclaration declaration, int order) {
+    public LfLookupItem(ReferableElement declaration, int order) {
         this.declaration = declaration;
         this.order = order;
     }
@@ -31,7 +33,13 @@ public class LfLookupItem extends LookupElement {
         return order;
     }
 
-    public LfDeclaration getDeclaration() {
+    public ReferableElement getDeclaration() {
         return declaration;
+    }
+
+    public void renderElement(LookupElementPresentation presentation) {
+        presentation.setItemText(declaration.getName());
+        presentation.setIcon(declaration.getIcon(Iconable.ICON_FLAG_VISIBILITY));
+        presentation.setTypeText(declaration.getTypeText());
     }
 }

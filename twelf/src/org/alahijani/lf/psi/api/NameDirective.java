@@ -4,9 +4,9 @@ package org.alahijani.lf.psi.api;
  * @author Ali Lahijani
  */
 public interface NameDirective extends TwelfStatement {
-    LfIdentifierReference getForType();
+    TwelfIdentifierReference getForType();
 
-    LfIdentifier getNameIdentifier();
+    TwelfIdentifier getNameIdentifier();
 
-    LfIdentifier getSecondNameIdentifier();
+    TwelfIdentifier getSecondNameIdentifier();
 }
