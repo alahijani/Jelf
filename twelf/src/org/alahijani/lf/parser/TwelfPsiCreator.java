@@ -25,10 +25,22 @@ public class TwelfPsiCreator implements TwelfTokenType {
             return new NameDirectiveImpl(node);
         }
         if (elem == TwelfElementType.FIXITY_DIRECTIVE_STATEMENT) {
-            return new TwelfDirectiveImpl(node);
+            return new FixityDirectiveImpl(node);
+        }
+        if (elem == TwelfElementType.MODED_DIRECTIVE_STATEMENT) {
+            return new ModedDirectiveImpl(node);
+        }
+        if (elem == TwelfElementType.TERMINATION_DIRECTIVE_STATEMENT) {
+            return new TerminationDirectiveImpl(node);
+        }
+        if (elem == TwelfElementType.WORLDS_DIRECTIVE_STATEMENT) {
+            return new WorldsDirectiveImpl(node);
         }
         if (elem == TwelfElementType.DIRECTIVE_STATEMENT) {
-            return new TwelfDirectiveImpl(node);
+            return new IgnoredDirectiveImpl(node);
+        }
+        if (elem == TwelfElementType.BLOCK_LABEL_REFERENCE) {
+            return new BlockLabelReferenceImpl(node);
         }
         if (elem == TwelfElementType.LF_GLOBAL_VARIABLE) {
             return new LfGlobalVariableImpl(node);
@@ -49,7 +61,7 @@ public class TwelfPsiCreator implements TwelfTokenType {
             return new PostfixApplicationExpressionImpl(node);
         }
         if (elem == TwelfElementType.TYPED_TERM) {
-            return new TypedExpressionImpl(node);
+            return new TypedLfTermImpl(node);
         }
         if (elem == TwelfElementType.TO_ARROW_TERM) {
             return new ToArrowTypeImpl(node);

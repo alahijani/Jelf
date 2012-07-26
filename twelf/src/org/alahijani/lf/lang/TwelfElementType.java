@@ -16,6 +16,9 @@ public interface TwelfElementType extends TokenType {
     IElementType ABBREV_DIRECTIVE_STATEMENT = new ITwelfElementType("%abbrev directive");
     IElementType NAME_DIRECTIVE_STATEMENT = new ITwelfElementType("%name directive");
     IElementType FIXITY_DIRECTIVE_STATEMENT = new ITwelfElementType("Operator fixity directive");
+    IElementType MODED_DIRECTIVE_STATEMENT = new ITwelfElementType("%mode, %covers or %unique directive");
+    IElementType TERMINATION_DIRECTIVE_STATEMENT = new ITwelfElementType("%terminates or %total directive");
+    IElementType WORLDS_DIRECTIVE_STATEMENT = new ITwelfElementType("%worlds directive");
     IElementType ASSOCIATIVITY = new ITwelfElementType("Associativity");
     IElementType PRECEDENCE = new ITwelfElementType("Precedence");
 
@@ -28,6 +31,11 @@ public interface TwelfElementType extends TokenType {
     IElementType LAMBDA_TERM = new ITwelfElementType("Lambda term");
     IElementType PI_TERM = new ITwelfElementType("Pi term");
     IElementType IDENTIFIER = new ITwelfElementType("Identifier");
+    IElementType POSITIONAL_KEYWORD = new ITwelfElementType("Positional keyword");          // ?
+    IElementType MODED_LOCAL_DECLARATION = new ITwelfElementType("Moded local declaration");
+    IElementType TERMINATION_ORDER = new ITwelfElementType("Termination order");
+    IElementType CALL_PATTERN = new ITwelfElementType("Call pattern");
+    IElementType BLOCK_LABEL_REFERENCE = new ITwelfElementType("Block label reference");
 
     IElementType TYPE_KEYWORD = new ITwelfElementType("'type' keyword");
     IElementType REFERENCE_EXPRESSION = new ITwelfElementType("Reference expressions");

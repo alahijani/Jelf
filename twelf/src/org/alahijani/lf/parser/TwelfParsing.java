@@ -54,9 +54,10 @@ public class TwelfParsing {
 
     private boolean statement() {
 
-        if (builder.getTokenType() == IDENT) {
+        IElementType type = builder.getTokenType();
+        if (type == IDENT) {
             declarationStatement();
-        } else if (builder.getTokenType() == DIRECTIVE) {
+        } else if (type == DIRECTIVE) {
             directive();
         } else {
             builder.error(TwelfBundle.message("expected.statement"));
@@ -235,12 +236,8 @@ public class TwelfParsing {
         return text;
     }
 
-    private boolean binderTerm(IElementType lBracket,
-                               IElementType rBracket,
-                               IElementType elementType,
-                               String rBracketExpected) {
-        PsiBuilder.Marker bracketTerm = builder.mark();
-        builder.advanceLexer();
+    private void localDeclaration(IElementType rBracket, String rBracketExpected) {
+        builder.advanceLexer();     // eat the left bracket
 
         if (builder.getTokenType() == IDENT) {
             PsiBuilder.Marker declaration = builder.mark();
@@ -252,54 +249,59 @@ public class TwelfParsing {
                 }
             }
             declaration.done(TwelfElementType.LF_LOCAL_VARIABLE);
-
-            if (builder.getTokenType() == rBracket) {
-                builder.advanceLexer();
-            } else {
-                builder.error(rBracketExpected);
-            }
         } else {
             builder.error(TwelfBundle.message("expected.identifier"));
+        }
 
-            while (true) {
-                if (builder.getTokenType() == rBracket) {
-                    builder.advanceLexer();
-                    break;
-                }
+        rightBracket(rBracket, rBracketExpected);
+    }
 
-                if (builder.eof() || builder.getTokenType() == DOT) {
-                    builder.error(rBracketExpected);
-                    break;
-                }
+    private void rightBracket(IElementType rBracket, String rBracketExpected) {
+        while (true) {
+            IElementType type = builder.getTokenType();
 
+            if (type == rBracket) {
                 builder.advanceLexer();
+                break;
             }
 
+            if (type == DOT || builder.eof()) {
+                builder.error(rBracketExpected);
+                break;
+            }
+
+            builder.advanceLexer();
         }
+    }
+
+    private boolean binderTerm(IElementType lBracket,
+                               IElementType rBracket,
+                               IElementType elementType,
+                               String rBracketExpected) {
+        PsiBuilder.Marker bracketTerm = builder.mark();
+
+        localDeclaration(rBracket, rBracketExpected);
 
         if (!term()) {
             builder.error(TwelfBundle.message("expected.term"));
         }
 
         bracketTerm.done(elementType);
+
         return true;
     }
 
     private boolean parenthesizedTerm() {
         PsiBuilder.Marker parenthesized = builder.mark();
-        ParserUtils.getToken(builder, LPARENTH);
+        builder.advanceLexer();     // eat the left parenthesis
+
         if (!term()) {
             builder.error(TwelfBundle.message("expected.term"));
         }
-        if (!ParserUtils.getToken(builder, RPARENTH, TwelfBundle.message("expected.rParen"))) {
-            builder.error(TwelfBundle.message("expected.rParen"));
-            while (!builder.eof() && DOT != builder.getTokenType() && RPARENTH != builder.getTokenType()) {
-                builder.error(TwelfBundle.message("expected.rParen"));      // todo why so verbose? already said once!
-                builder.advanceLexer();
-            }
-            ParserUtils.getToken(builder, RPARENTH);
-        }
+
+        rightBracket(RPARENTH, TwelfBundle.message("expected.rParen"));
         parenthesized.done(TwelfElementType.PARENTHESIZED_EXPRESSION);
+
         return true;
     }
 
@@ -323,6 +325,12 @@ public class TwelfParsing {
             statement.done(TwelfElementType.NAME_DIRECTIVE_STATEMENT);
         } else if (fixityDirective()) {
             statement.done(TwelfElementType.FIXITY_DIRECTIVE_STATEMENT);
+        } else if (modedDirective()) {
+            statement.done(TwelfElementType.MODED_DIRECTIVE_STATEMENT);
+        } else if (terminationDirective()) {
+            statement.done(TwelfElementType.TERMINATION_DIRECTIVE_STATEMENT);
+        } else if (worldsDirective()) {
+            statement.done(TwelfElementType.WORLDS_DIRECTIVE_STATEMENT);
         } else {
             if (DIRECTIVE_SET.contains(directive)) {
                 builder.advanceLexer();
@@ -385,6 +393,215 @@ public class TwelfParsing {
         return true;
     }
 
+    private boolean modedDirective() {
+        String directive = builder.getTokenText();
+        if (!D_MODE.equals(directive)
+                && !D_UNIQUE.equals(directive)
+                && !D_COVERS.equals(directive)) {
+            return false;
+        }
+        builder.advanceLexer();
+
+        modeDeclaration();
+
+        dot();
+        return true;
+    }
+
+    // TODO support parenthesized mode declarations
+    private void modeDeclaration() {
+        if (!fullModeDeclaration()) {
+            shortModeDeclaration();
+        }
+    }
+
+    private boolean fullModeDeclaration() {
+        /**
+         * Whether a Full Mode Declaration or a Short Mode Declaration
+         */
+        boolean fullMode = false;
+        while (true) {
+            if (builder.getTokenType() != IDENT) break;
+
+            String text = builder.getTokenText();
+            if (text == null || text.length() != 1) break;
+
+            char c = text.charAt(0);
+            if (c != '-' && c != '+' && c != '*') break;
+
+            PsiBuilder.Marker modedLocalDeclaration = builder.mark();
+            eatElement(TwelfElementType.POSITIONAL_KEYWORD);
+
+            if (builder.getTokenType() == LBRACE) {
+                localDeclaration(RBRACE, TwelfBundle.message("expected.rBrace"));
+                modedLocalDeclaration.done(TwelfElementType.MODED_LOCAL_DECLARATION);
+                fullMode = true;
+            } else {
+                modedLocalDeclaration.rollbackTo();
+                break;
+            }
+        }
+
+        if (fullMode) {
+            if (!term()) {
+                builder.error(TwelfBundle.message("expected.term"));
+            }
+        }
+        return fullMode;
+    }
+
+    private void shortModeDeclaration() {
+        if (idReference() != null) {            // the head
+            while (true) {
+                if (builder.getTokenType() != IDENT) {
+                    break;
+                }
+
+                PsiBuilder.Marker modedIdentifier = builder.mark();
+
+                String var = builder.getTokenText();
+                if (var == null || var.length() < 2) {
+                    modedIdentifier.error(TwelfBundle.message("expected.identifier.moded"));
+                    break;
+                }
+
+                char c = var.charAt(0);
+                if (c != '-' && c != '+' && c != '*') {
+                    modedIdentifier.error(TwelfBundle.message("expected.identifier.moded"));
+                    break;
+                }
+
+                builder.advanceLexer();
+                modedIdentifier.done(TwelfElementType.IDENTIFIER);
+            }
+        } else {
+            builder.error(TwelfBundle.message("expected.identifier"));
+        }
+    }
+
+    private boolean worldsDirective() {
+        String directive = builder.getTokenText();
+        if (!D_WORLDS.equals(directive)) {
+            return false;
+        }
+        builder.advanceLexer();
+
+        labelList();
+        callPatterns();
+
+        dot();
+        return true;
+    }
+
+    private boolean terminationDirective() {
+        String directive = builder.getTokenText();
+        if (!D_TERMINATES.equals(directive)
+                &&  !D_TOTAL.equals(directive)) {
+            return false;
+        }
+        builder.advanceLexer();
+
+        terminationOrder();
+        callPatterns();
+
+        dot();
+        return true;
+    }
+
+    private void callPatterns() {
+        while (builder.getTokenType() == LPARENTH) {
+            builder.advanceLexer();
+
+            PsiBuilder.Marker callPattern = builder.mark();
+            if (idReference() != null) {            // the head
+                while (builder.getTokenType() == IDENT) {
+                    eatElement(TwelfElementType.IDENTIFIER);
+                }
+            } else {
+                builder.error(TwelfBundle.message("expected.identifier"));
+            }
+            callPattern.done(TwelfElementType.CALL_PATTERN);
+
+            rightBracket(RPARENTH, TwelfBundle.message("expected.rParen"));
+        }
+    }
+
+    private void labelList() {
+        if (builder.getTokenType() == LPARENTH) {
+            builder.advanceLexer();
+            while (true) {
+                if (builder.getTokenType() == IDENT) {
+                    PsiBuilder.Marker labelReference = builder.mark();
+                    eatElement(TwelfElementType.IDENTIFIER);
+                    labelReference.done(TwelfElementType.BLOCK_LABEL_REFERENCE);
+                }
+                // TODO buggy
+                if (builder.getTokenType() == IDENT && "|".equals(builder.getTokenText())) {
+                    eatElement(TwelfElementType.POSITIONAL_KEYWORD);
+                } else if (builder.getTokenType() != IDENT) {
+                    break;
+                }
+            }
+            rightBracket(RPARENTH, TwelfBundle.message("expected.rParen"));
+        } else {
+            builder.error(TwelfBundle.message("expected.label.list"));
+        }
+    }
+
+    private void terminationOrder() {
+        PsiBuilder.Marker terminationOrder = builder.mark();
+        IElementType tokenType = builder.getTokenType();
+
+        if (tokenType == IDENT) {               // single argument
+            eatElement(TwelfElementType.IDENTIFIER);
+        } else if (tokenType == LPARENTH) {     // mutual arguments
+            builder.advanceLexer();
+            while (builder.getTokenType() == IDENT) {
+                eatElement(TwelfElementType.IDENTIFIER);
+            }
+            rightBracket(RPARENTH, TwelfBundle.message("expected.rParen"));
+        } else if (tokenType == LBRACE) {       // lexicographic order
+            builder.advanceLexer();
+            while (true) {
+                IElementType type = builder.getTokenType();
+                if (type == RBRACE) {
+                    builder.advanceLexer();
+                    break;
+                }
+
+                if (type == DOT || builder.eof()) {
+                    builder.error(TwelfBundle.message("expected.rBrace"));
+                    break;
+                }
+
+                terminationOrder();
+            }
+        } else if (tokenType == LBRACKET) {     // simultaneous order
+            builder.advanceLexer();
+            while (true) {
+                IElementType type = builder.getTokenType();
+                if (type == RBRACKET) {
+                    builder.advanceLexer();
+                    break;
+                }
+
+                if (type == DOT || builder.eof()) {
+                    builder.error(TwelfBundle.message("expected.rBracket"));
+                    break;
+                }
+
+                terminationOrder();
+            }
+        } else {
+            builder.advanceLexer();
+            terminationOrder.error(TwelfBundle.message("expected.termination.order"));
+            return;
+        }
+
+        terminationOrder.done(TwelfElementType.TERMINATION_ORDER);
+    }
+
+
     private boolean fixityDirective() {
         String directive = builder.getTokenText();
 
@@ -407,6 +624,7 @@ public class TwelfParsing {
         } else {
             builder.error(TwelfBundle.message("expected.identifier"));
         }
+        // todo implement postfix and prefix...
 
         dot();
         return true;
@@ -460,7 +678,7 @@ public class TwelfParsing {
         dot(true);
     }
 
-    private void dot(boolean errorUnexpected) {
+    private void dot(boolean reportUnexpected) {
         do {
             if (builder.getTokenType() == DOT) {
                 builder.advanceLexer();
@@ -472,16 +690,20 @@ public class TwelfParsing {
             }
 
             // advance the lexer and issue error if required
-            if (!errorUnexpected) {
-                builder.advanceLexer();
+            if (reportUnexpected) {
+                reportUnexpected();
+                reportUnexpected = false;    // just one error is enough
             } else {
-                PsiBuilder.Marker marker = builder.mark();
-                String unexpected = builder.getTokenText();
                 builder.advanceLexer();
-                marker.error(TwelfBundle.message("unexpected.token", unexpected));
-                errorUnexpected = false;    // just one error is enough
             }
         } while (true);
+    }
+
+    private void reportUnexpected() {
+        PsiBuilder.Marker marker = builder.mark();
+        String unexpected = builder.getTokenText();
+        builder.advanceLexer();
+        marker.error(TwelfBundle.message("unexpected.token", unexpected));
     }
 
     private void eatElement(IElementType elementType) {
@@ -491,3 +713,5 @@ public class TwelfParsing {
     }
 
 }
+
+// Jelf means extravagant or immodest
