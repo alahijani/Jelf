@@ -3,6 +3,8 @@ package org.alahijani.lf.params;
 import org.alahijani.lf.psi.api.ApplicationExpression;
 import org.alahijani.lf.psi.api.TwelfIdentifierReference;
 import org.alahijani.lf.psi.api.LfTerm;
+import org.alahijani.lf.psi.api.WrappingTerm;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 
@@ -12,7 +14,7 @@ import java.util.LinkedList;
 public class CurriedApplication /*extends LightElement implements PsiElement*/ {
 
     public final ApplicationExpression application;
-    public final TwelfIdentifierReference head;
+    public final TwelfIdentifierReference head; // todo type should be generalized
     public final LfTerm[] arguments;
 
     public CurriedApplication(ApplicationExpression application, TwelfIdentifierReference head, LfTerm[] arguments) {
@@ -31,6 +33,7 @@ public class CurriedApplication /*extends LightElement implements PsiElement*/ {
         return idx;
     }
 
+    @Nullable
     public static CurriedApplication curry(ApplicationExpression application) {
         LinkedList<LfTerm> args = new LinkedList<LfTerm>();
         ApplicationExpression app = application;
@@ -38,15 +41,23 @@ public class CurriedApplication /*extends LightElement implements PsiElement*/ {
             LfTerm function = app.getFunction();
             LfTerm argument = app.getArgument();
             args.add(0, argument);
-            if (function instanceof TwelfIdentifierReference) {
+
+            /**
+             * unwrap it if wrapped
+             */
+            while (function instanceof WrappingTerm) {
+                function = ((WrappingTerm) function).getWrapped();
+            }
+
+            if (function instanceof ApplicationExpression) {
+                app = (ApplicationExpression) function;
+            } else if (function instanceof TwelfIdentifierReference) {   // todo type should be generalized...
                 return new CurriedApplication(
                         application,
                         (TwelfIdentifierReference) function,
                         args.toArray(new LfTerm[args.size()])
                 );
-            } else if (function instanceof ApplicationExpression) {
-                app = (ApplicationExpression) function;
-            } else {
+            } else {            // todo we can handle lambda abstractions...
                 return null;
             }
         } while (true);

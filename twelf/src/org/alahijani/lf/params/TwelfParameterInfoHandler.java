@@ -22,6 +22,7 @@ public class TwelfParameterInfoHandler implements ParameterInfoHandler/*WithTabA
     // --------- General stuff --------------------------------------
 
     public String getParameterCloseChars() {
+        // todo: do we really need this?
         return "){}";
     }
 
@@ -67,6 +68,7 @@ public class TwelfParameterInfoHandler implements ParameterInfoHandler/*WithTabA
 
     public void showParameterInfo(@NotNull ApplicationExpression place, CreateParameterInfoContext context) {
         CurriedApplication curry = CurriedApplication.curry(place);
+        if (curry == null) return;
         PsiElement resolve = curry.head.resolve();
         context.setItemsToShow(new Object[]{resolve});
         context.showHint(curry.application, curry.application.getTextRange().getStartOffset(), this);
@@ -87,6 +89,7 @@ public class TwelfParameterInfoHandler implements ParameterInfoHandler/*WithTabA
 
     public void updateParameterInfo(@NotNull ApplicationExpression place, UpdateParameterInfoContext context) {
         CurriedApplication curry = CurriedApplication.curry(place);
+        if (curry == null) return;
         if (!PsiTreeUtil.isAncestor(context.getParameterOwner(), curry.application, false)) {
             // we are showing parameters of g for "f x (g y)" and the caret enters the scope of f.
             // we should stop with g
