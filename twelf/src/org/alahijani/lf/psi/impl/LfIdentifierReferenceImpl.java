@@ -4,7 +4,6 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.ResolveResult;
 import org.alahijani.lf.psi.api.LfDeclaration;
 import org.alahijani.lf.psi.api.LfIdentifierReference;
-import org.alahijani.lf.psi.api.TwelfFile;
 import org.alahijani.lf.psi.xref.Referencing;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,8 +20,4 @@ public class LfIdentifierReferenceImpl extends TwelfIdentifierReferenceImpl<LfDe
         return Referencing.multiResolveTarget(this);
     }
 
-    @Override
-    public TwelfFile getContainingFile() {
-        return (TwelfFile) super.getContainingFile();
-    }
 }

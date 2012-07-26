@@ -1,8 +1,7 @@
 package org.alahijani.lf.psi.impl;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.stubs.IStubElementType;
-import com.intellij.psi.stubs.StubElement;
+import org.alahijani.lf.psi.api.LfTerm;
 import org.alahijani.lf.psi.api.ParenthesizedExpression;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +13,7 @@ public class ParenthesizedExpressionImpl extends TwelfElementImpl implements Par
         super(node);
     }
 
-    public ParenthesizedExpressionImpl(@NotNull StubElement stub, @NotNull IStubElementType nodeType) {
-        super(stub, nodeType);
+    public LfTerm getWrapped() {
+        return findChildByClass(LfTerm.class);
     }
 }

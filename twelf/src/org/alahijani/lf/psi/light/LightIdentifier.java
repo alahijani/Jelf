@@ -2,25 +2,23 @@ package org.alahijani.lf.psi.light;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.light.LightElement;
 import com.intellij.psi.tree.IElementType;
-import org.alahijani.lf.lang.Twelf;
 import org.alahijani.lf.lang.TwelfElementType;
 import org.alahijani.lf.lexer.TwelfLexer;
 import org.alahijani.lf.psi.TwelfElementVisitor;
+import org.alahijani.lf.psi.api.TwelfBaseElement;
 import org.alahijani.lf.psi.api.TwelfIdentifier;
 import org.jetbrains.annotations.NotNull;
 
 /**
  *
  */
-public class LightIdentifier extends LightElement implements TwelfIdentifier {
+public class LightIdentifier extends TwelfLightElement implements TwelfIdentifier {
 
     private String myText;
 
-    public LightIdentifier(PsiManager manager, String text) {
-        super(manager, Twelf.INSTANCE);
+    public LightIdentifier(TwelfBaseElement virtualParent, String text) {
+        super(virtualParent);
         myText = text;
     }
 
@@ -54,7 +52,7 @@ public class LightIdentifier extends LightElement implements TwelfIdentifier {
     }
 
     public PsiElement copy() {
-        return new LightIdentifier(getManager(), myText);
+        return new LightIdentifier(getVirtualParent(), myText);
     }
 
     public String toString() {

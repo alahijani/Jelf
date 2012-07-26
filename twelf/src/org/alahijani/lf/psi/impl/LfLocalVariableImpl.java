@@ -4,7 +4,8 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.stubs.IStubElementType;
+import com.intellij.psi.search.LocalSearchScope;
+import com.intellij.psi.search.SearchScope;
 import com.intellij.util.IncorrectOperationException;
 import org.alahijani.lf.TwelfIcons;
 import org.alahijani.lf.editor.TwelfHighlighterColors;
@@ -13,7 +14,6 @@ import org.alahijani.lf.psi.api.TwelfIdentifier;
 import org.alahijani.lf.psi.api.LfLocalVariable;
 import org.alahijani.lf.psi.api.LfTerm;
 import org.alahijani.lf.psi.api.LfTypeElement;
-import org.alahijani.lf.psi.stubs.LfGlobalVariableStub;
 import org.alahijani.lf.psi.xref.Referencing;
 import org.alahijani.lf.structure.TwelfItemPresentation;
 import org.jetbrains.annotations.NonNls;
@@ -25,9 +25,6 @@ import javax.swing.*;
  * @author Ali Lahijani
  */
 public class LfLocalVariableImpl extends TwelfElementImpl implements LfLocalVariable {
-    public LfLocalVariableImpl(final LfGlobalVariableStub stub, IStubElementType nodeType) {
-        super(stub, nodeType);
-    }
 
     public LfLocalVariableImpl(final ASTNode node) {
         super(node);
@@ -83,4 +80,9 @@ public class LfLocalVariableImpl extends TwelfElementImpl implements LfLocalVari
         };
     }
 
+    @NotNull
+    @Override
+    public SearchScope getUseScope() {
+        return new LocalSearchScope(getParent());
+    }
 }

@@ -3,7 +3,6 @@ package org.alahijani.lf.psi.impl;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.resolve.ResolveCache;
-import org.alahijani.lf.psi.api.TwelfConfigFile;
 import org.alahijani.lf.psi.api.TwelfFile;
 import org.alahijani.lf.psi.api.TwelfFileReference;
 import org.jetbrains.annotations.NotNull;
@@ -38,11 +37,5 @@ public class TwelfFileReferenceImpl extends TwelfIdentifierReferenceImpl<TwelfFi
                 ? ResolveResult.EMPTY_ARRAY
                 : new ResolveResult[]{new PsiElementResolveResult(element)};
     }
-
-    @Override
-    public TwelfConfigFile getContainingFile() {
-        return (TwelfConfigFile) super.getContainingFile();
-    }
-
 
 }

@@ -1,5 +1,6 @@
 package org.alahijani.lf.psi.api;
 
+import com.intellij.psi.search.SearchScope;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -11,4 +12,6 @@ public interface ReferableElement extends TwelfElement {
 
     String getTypeText();
 
+    @NotNull
+    public SearchScope getUseScope();
 }

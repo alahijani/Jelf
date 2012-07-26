@@ -5,15 +5,16 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.impl.light.LightElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.source.tree.Factory;
 import com.intellij.psi.impl.source.tree.SharedImplUtil;
+import com.intellij.psi.search.LocalSearchScope;
+import com.intellij.psi.search.SearchScope;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.CharTable;
 import com.intellij.util.IncorrectOperationException;
 import org.alahijani.lf.editor.TwelfHighlighterColors;
 import org.alahijani.lf.formatter.TwelfFormatter;
-import org.alahijani.lf.lang.Twelf;
 import org.alahijani.lf.lang.TwelfElementType;
 import org.alahijani.lf.lang.TwelfTokenType;
 import org.alahijani.lf.psi.TwelfElementVisitor;
@@ -26,23 +27,23 @@ import org.jetbrains.annotations.Nullable;
 /**
  *
  */
-public abstract class LightLfDeclaration extends LightElement implements LfDeclaration {
+public abstract class LightLfDeclaration<ParentType extends TwelfElement>
+        extends TwelfLightElement<ParentType> implements LfDeclaration {
 
     protected final TwelfIdentifier nameIdentifier;
     protected final LfTerm type;
     protected final ASTNode node;
-    protected final TwelfElement parent;
 
-    public LightLfDeclaration(TwelfElement parent, String name, LfTerm type, LfTerm value) {
-        super(parent.getManager(), Twelf.INSTANCE);
-        this.nameIdentifier = new LightIdentifier(parent.getManager(), name);
+    public LightLfDeclaration(ParentType virtualParent, String name, LfTerm type, @Nullable LfTerm value) {
+        super(virtualParent);
+        this.nameIdentifier = new LightIdentifier(this, name);
         this.type = type;
 
-        CharTable charTable = SharedImplUtil.findCharTableByTree(parent.getNode());
-        this.node = Factory.createSingleLeafElement(TwelfTokenType.PLACEHOLDER, "", charTable, this.getManager());  // todo needed?
+        CharTable charTable = SharedImplUtil.findCharTableByTree(virtualParent.getNode());
+        this.node = null;
+                Factory.createSingleLeafElement(TwelfTokenType.PLACEHOLDER, "", charTable, this.getManager());  // todo needed?
 
-        this.parent = parent;
-        // setNavigationElement(parent);    this has undesirable side effects
+        // setNavigationElement(virtualParent);    this has undesirable side effects
     }
 
     @Override
@@ -69,13 +70,8 @@ public abstract class LightLfDeclaration extends LightElement implements LfDecla
     }
 
     @Override
-    public TwelfFile getContainingFile() {
-        return parent.getContainingFile();
-    }
-
-    @Override
-    public int getTextOffset() {
-        return parent.getTextOffset();
+    public PsiFile getContainingFile() {
+        return getVirtualParent().getContainingFile();
     }
 
     public String toString() {
@@ -109,19 +105,19 @@ public abstract class LightLfDeclaration extends LightElement implements LfDecla
     }
 
     @NotNull
-    public static LfLocalVariable createAnonymousLocal(final TwelfElement parent, @Nullable final LfTerm type) {
+    public static LfLocalVariable createAnonymousLocal(final LocalVariableBinder parent, @Nullable final LfTerm type) {
         return new AnonymousLfLocalVariableImpl(parent, type);
     }
 
     @NotNull
-    public static LfMetaVariable createMeta(final TwelfElement parent, final String name) {
+    public static LfMetaVariable createMeta(final MetaVariableBinder parent, final String name) {
         return new LfMetaVariableImpl(parent, name);
     }
 
-    private static class LfMetaVariableImpl extends LightLfDeclaration implements LfMetaVariable {
+    private static class LfMetaVariableImpl extends LightLfDeclaration<MetaVariableBinder> implements LfMetaVariable {
         private boolean committed = false;
 
-        public LfMetaVariableImpl(TwelfElement parent, String name) {
+        public LfMetaVariableImpl(MetaVariableBinder parent, String name) {
             super(parent, name, null, null);
         }
 
@@ -132,7 +128,7 @@ public abstract class LightLfDeclaration extends LightElement implements LfDecla
 
         @Override
         public PsiElement copy() {
-            return new LfMetaVariableImpl(parent, getName());
+            return new LfMetaVariableImpl(getVirtualParent(), getName());
         }
 
         @Override
@@ -153,11 +149,16 @@ public abstract class LightLfDeclaration extends LightElement implements LfDecla
             return new LightLfDeclarationPresentation(this, TwelfHighlighterColors.LF_META_VARIABLE);
         }
 
+        @NotNull
+        @Override
+        public SearchScope getUseScope() {
+            return new LocalSearchScope(getVirtualParent());
+        }
     }
 
-    private static class AnonymousLfLocalVariableImpl extends LightLfDeclaration implements LfLocalVariable {
+    private static class AnonymousLfLocalVariableImpl extends LightLfDeclaration<LocalVariableBinder> implements LfLocalVariable {
 
-        public AnonymousLfLocalVariableImpl(TwelfElement parent, LfTerm type) {
+        public AnonymousLfLocalVariableImpl(LocalVariableBinder parent, LfTerm type) {
             super(parent, "_", type, null);
         }
 
@@ -168,7 +169,7 @@ public abstract class LightLfDeclaration extends LightElement implements LfDecla
 
         @Override
         public PsiElement copy() {
-            return new AnonymousLfLocalVariableImpl(parent, type);
+            return new AnonymousLfLocalVariableImpl(getVirtualParent(), type);
         }
 
         @Override
@@ -179,6 +180,12 @@ public abstract class LightLfDeclaration extends LightElement implements LfDecla
         @Override
         public ItemPresentation getPresentation() {
             return new LightLfDeclarationPresentation(this, TwelfHighlighterColors.LF_LOCAL_IDENTIFIER);
+        }
+
+        @NotNull
+        @Override
+        public SearchScope getUseScope() {
+            return new LocalSearchScope(getVirtualParent(), "Empty scope");
         }
     }
 

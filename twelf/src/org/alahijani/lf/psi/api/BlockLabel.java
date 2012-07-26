@@ -3,5 +3,5 @@ package org.alahijani.lf.psi.api;
 /**
  * @author Ali Lahijani
  */
-public interface TypedExpression extends LfTerm {
+public interface BlockLabel extends ReferableElement {
 }

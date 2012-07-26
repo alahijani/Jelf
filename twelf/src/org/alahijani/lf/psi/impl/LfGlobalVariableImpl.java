@@ -4,17 +4,19 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.PsiBundle;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.SearchScope;
 import com.intellij.psi.stubs.IStubElementType;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.alahijani.lf.TwelfIcons;
 import org.alahijani.lf.formatter.TwelfFormatter;
 import org.alahijani.lf.lang.TwelfTokenType;
-import org.alahijani.lf.psi.api.LfGlobalVariable;
-import org.alahijani.lf.psi.api.LfTerm;
-import org.alahijani.lf.psi.api.LfTypeElement;
-import org.alahijani.lf.psi.api.TwelfIdentifier;
+import org.alahijani.lf.psi.api.*;
 import org.alahijani.lf.psi.stubs.LfGlobalVariableStub;
+import org.alahijani.lf.psi.util.TwelfPsiUtil;
 import org.alahijani.lf.psi.xref.Referencing;
 import org.alahijani.lf.structure.TwelfItemPresentation;
 import org.jetbrains.annotations.NonNls;
@@ -37,7 +39,12 @@ public class LfGlobalVariableImpl extends TwelfStubBasedElementImpl<LfGlobalVari
     }
 
     public LfTerm getValue() {
-        return findChildByClass(LfTerm.class);
+        ASTNode eq = getNode().findChildByType(TwelfTokenType.KEYWORD);
+        if (eq == null) return null;
+
+        assert "=".equals(eq.getText());
+
+        return PsiTreeUtil.getNextSiblingOfType(eq.getPsi(), LfTerm.class);
     }
 
     public TwelfIdentifier getNameIdentifier() {
@@ -50,20 +57,9 @@ public class LfGlobalVariableImpl extends TwelfStubBasedElementImpl<LfGlobalVari
 
     public LfTerm getType() {
         ASTNode colon = getNode().findChildByType(TwelfTokenType.COLON);
-        if (colon == null) {
-            return null;
-        }
+        if (colon == null) return null;
 
-        // Skip whitespaces, etc.
-        for (ASTNode it = colon.getTreeNext(); it != null; it = it.getTreeNext()) {
-
-            PsiElement psi = it.getPsi();
-            if (psi instanceof LfTerm) {
-                return (LfTerm) psi;
-            }
-        }
-
-        return null;
+        return PsiTreeUtil.getNextSiblingOfType(colon.getPsi(), LfTerm.class);
     }
 
 
@@ -124,4 +120,20 @@ public class LfGlobalVariableImpl extends TwelfStubBasedElementImpl<LfGlobalVari
         return TwelfIcons.LF_GLOBAL_VARIABLE;
     }
 
+    @NotNull
+    @Override
+    public SearchScope getUseScope() {
+        PsiDirectory directory = getContainingFile().getContainingDirectory();
+        return directory == null
+                ? GlobalSearchScope.allScope(getProject())
+                : GlobalSearchScope.directoryScope(directory, false);
+    }
+
+    public TwelfBaseElement getVirtualParent() {
+        return (TwelfBaseElement) getParent();
+    }
+
+    public Iterable<? extends TwelfBaseElement> getVirtualParentChain() {
+        return TwelfPsiUtil.getVirtualParentChain(this);
+    }
 }

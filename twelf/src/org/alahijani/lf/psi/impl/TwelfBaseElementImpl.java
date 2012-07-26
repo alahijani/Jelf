@@ -7,20 +7,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.SearchScope;
-import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.stubs.StubElement;
 import org.alahijani.lf.psi.api.TwelfBaseElement;
+import org.alahijani.lf.psi.util.TwelfPsiUtil;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Ali Lahijani
  */
 public abstract class TwelfBaseElementImpl extends StubBasedPsiElementBase<StubElement> implements TwelfBaseElement {
-
-    public TwelfBaseElementImpl(@NotNull StubElement stub, @NotNull IStubElementType nodeType) {
-        super(stub, nodeType);
-    }
 
     public TwelfBaseElementImpl(@NotNull ASTNode node) {
         super(node);
@@ -42,10 +37,11 @@ public abstract class TwelfBaseElementImpl extends StubBasedPsiElementBase<StubE
                 : GlobalSearchScope.directoryScope(directory, false);
     }
 
-    @NotNull
-    @Override
-    public SearchScope getUseScope() {
-        return super.getUseScope();
+    public TwelfBaseElement getVirtualParent() {
+        return (TwelfBaseElement) getParent();
     }
 
+    public Iterable<? extends TwelfBaseElement> getVirtualParentChain() {
+        return TwelfPsiUtil.getVirtualParentChain(this);
+    }
 }

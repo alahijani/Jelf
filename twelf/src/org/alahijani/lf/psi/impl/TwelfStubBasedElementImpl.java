@@ -12,7 +12,7 @@ import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.stubs.StubElement;
 import com.intellij.util.IncorrectOperationException;
 import org.alahijani.lf.psi.api.TwelfBaseElement;
-import org.alahijani.lf.psi.api.TwelfFile;
+import org.alahijani.lf.psi.util.TwelfPsiUtil;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -28,10 +28,6 @@ public class TwelfStubBasedElementImpl<T extends StubElement> extends StubBasedP
         super(node);
     }
 
-    @Override
-    public TwelfFile getContainingFile() {
-        return (TwelfFile) super.getContainingFile();
-    }
 
     @Override
     public PsiElement getParent() {
@@ -50,5 +46,13 @@ public class TwelfStubBasedElementImpl<T extends StubElement> extends StubBasedP
 
     protected CompositeElement calcTreeElement() {
         return (CompositeElement) getNode();
+    }
+
+    public TwelfBaseElement getVirtualParent() {
+        return (TwelfBaseElement) getParent();
+    }
+
+    public Iterable<? extends TwelfBaseElement> getVirtualParentChain() {
+        return TwelfPsiUtil.getVirtualParentChain(this);
     }
 }
