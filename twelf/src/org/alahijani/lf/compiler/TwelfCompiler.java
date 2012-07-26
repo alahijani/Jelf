@@ -11,6 +11,8 @@ import com.intellij.util.Chunk;
 import org.alahijani.lf.TwelfBundle;
 import org.alahijani.lf.fileTypes.TwelfConfigFileType;
 import org.alahijani.lf.fileTypes.TwelfFileType;
+import org.alahijani.lf.settings.CompilerSettings;
+import org.alahijani.lf.settings.TwelfPluginSettings;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -25,7 +27,6 @@ import java.util.concurrent.ExecutionException;
 public class TwelfCompiler implements TranslatingCompiler {
     private static final Logger LOG = Logger.getInstance("#org.alahijani.lf.compiler.TwelfCompiler");
 
-    private static final String TWELF_INSTALLATION_OPTION = "twelf.installation";
     private Project project;
 
     public TwelfCompiler(Project project) {
@@ -47,24 +48,29 @@ public class TwelfCompiler implements TranslatingCompiler {
     }
 
     public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink sink) {
-        compile(context, files, false, false);
+        compile(context, files);
     }
 
-    private void compile(CompileContext context, VirtualFile[] files, boolean autoFreeze, boolean unsafe) {
+    private void compile(CompileContext context, VirtualFile[] files) {
         try {
             ArrayList<File> tempFiles = new ArrayList<File>();
             final TwelfServer twelfServer = TwelfServer.createTwelfServer(project, context);
             try {
-                twelfServer.setAutoFreeze(autoFreeze);
-                twelfServer.setUnsafe(unsafe);
 
-                for (VirtualFile file : files) {
+                for (int i = 0, filesLength = files.length; i < filesLength; i++) {
+                    VirtualFile file = files[i];
+
+                    configureForFile(twelfServer, file);
+//                    context.getProgressIndicator().pushState();
+                    context.getProgressIndicator().setFraction(i / (double) filesLength);
+
                     if (TwelfConfigFileType.INSTANCE.equals(file.getFileType())) {
                         twelfServer.make(file);
                     } else if (TwelfFileType.INSTANCE.equals(file.getFileType())) {
                         singleTwelfFile(twelfServer, file, tempFiles);
                     }
 
+//                    context.getProgressIndicator().popState();
                     twelfServer.reset();
                 }
 
@@ -81,8 +87,14 @@ public class TwelfCompiler implements TranslatingCompiler {
         } catch (ExecutionException ignored) {
             LOG.info("Thread interrupted", ignored);
         } catch (IOException e) {
-            LOG.error(e);
+            LOG.warn(e);
         }
+    }
+
+    private void configureForFile(TwelfServer twelfServer, VirtualFile file) throws IOException {
+        CompilerSettings settings = TwelfPluginSettings.getCompilerSettings(file);
+        twelfServer.setAutoFreeze(settings.isAutoFreeze());
+        twelfServer.setUnsafe(settings.isUnsafe());
     }
 
     private void singleTwelfFile(TwelfServer twelfServer, VirtualFile twelf, ArrayList<File> tempFiles) throws IOException {

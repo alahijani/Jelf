@@ -2,6 +2,7 @@ package org.alahijani.lf.compiler;
 
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -18,10 +19,13 @@ import java.util.regex.Pattern;
 
 /**
  * Note: Current versions of Twelf always use UTF-8 in their output.
+ * todo: even if source files' encodings are something else?
  *
  * @author Ali Lahijani
  */
 public class TwelfOutputParser implements Runnable {
+    private static final Logger LOG = Logger.getInstance("#org.alahijani.lf.compiler.TwelfOutputParser");
+
     private final CompileContext context;
     private InputStream inputStream;
     private int tabSize;
@@ -45,7 +49,7 @@ public class TwelfOutputParser implements Runnable {
     private static final Pattern EXCEPTION_PATTERN = Pattern.compile("Uncaught exception: (.*)");
 
     private void parseOutput() throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+        LineNumberReader in = new LineNumberReader(new InputStreamReader(inputStream, "UTF-8"));
 
         try {
             String error = null;
@@ -55,10 +59,12 @@ public class TwelfOutputParser implements Runnable {
 
             for (String line = in.readLine(); line != null; line = in.readLine()) {
 
+                context.getProgressIndicator().checkCanceled();
+
                 Matcher m = ERROR_PATTERN.matcher(line);
                 if (m.matches()) {
                     if (error != null) {
-                        addMessage(context, CompilerMessageCategory.ERROR, error, url, lineNum, columnNum);
+                        addMessage(CompilerMessageCategory.ERROR, error, url, lineNum, columnNum);
                     }
 
                     String drive = m.group(1);
@@ -85,12 +91,14 @@ public class TwelfOutputParser implements Runnable {
                          * previous file
                          */
                         // url = null;
+                        context.getProgressIndicator().popState();
                     } else if ("Opening".equals(m.group(1))) {
                         String drive = m.group(2);
                         String filePath = m.group(3);
                         url = getURL(drive, filePath);
+                        context.getProgressIndicator().pushState();
+                        context.getProgressIndicator().setText(line);
                     }
-                    // context.addMessage(CompilerMessageCategory.STATISTICS, line, url, -1, -1);
                     continue;
                 }
 
@@ -102,9 +110,9 @@ public class TwelfOutputParser implements Runnable {
 
                 if ("%% ABORT %%".equals(line)) {
                     if (error != null) {
-                        addMessage(context, CompilerMessageCategory.ERROR, error, url, lineNum, columnNum);
+                        addMessage(CompilerMessageCategory.ERROR, error, url, lineNum, columnNum);
                     } else {
-                        addMessage(context, CompilerMessageCategory.ERROR, "Compilation aborted", url, -1, -1);
+                        addMessage(CompilerMessageCategory.ERROR, "Compilation aborted", url, -1, -1);
                     }
                     error = null;       // end error mode
                     continue;
@@ -112,16 +120,29 @@ public class TwelfOutputParser implements Runnable {
 
                 if (error != null) {     // we are after an error, so collect everything
                     error = error + line + "\n";
+                } else {
+                    // making the like unique by adding line numbers prevents Intellij from dropping "duplicate" lines
+                    String message = "{%" + in.getLineNumber() + "%}    " + line;
+                    addMessage(CompilerMessageCategory.INFORMATION, message, url, -1, -1);
+
+                    context.getProgressIndicator().setText2(line);
+                    // if (line.indexOf('.') != -1) parsedStatement();
                 }
             }
 
             if (error != null) {
-                addMessage(context, CompilerMessageCategory.ERROR, error, url, lineNum, columnNum);
+                addMessage(CompilerMessageCategory.ERROR, error, url, lineNum, columnNum);
             }
         } finally {
             in.close();
         }
     }
+
+//    private int parsedStatements = 0;
+//    private void parsedStatement() {
+//        parsedStatements++;
+//        context.getProgressIndicator().setFraction(parsedStatements / (double) ....);
+//    }
 
     private static String getURL(String drive, String filePath) {
         if (drive != null && !drive.isEmpty()) {
@@ -130,20 +151,24 @@ public class TwelfOutputParser implements Runnable {
         return VirtualFileManager.constructUrl(LocalFileSystem.PROTOCOL, filePath);
     }
 
-    private void addMessage(CompileContext context, CompilerMessageCategory category,
+    private void addMessage(CompilerMessageCategory category,
                             String message, String url, int lineNum, int columnNum) {
-        if (lineNum > 0 && url != null) {
-            VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
-            Document document = file == null ? null : FileDocumentManager.getInstance().getDocument(file);
-            if (document != null) {
-                String lineText = getLineText(lineNum, document);
-                columnNum--;    // make it zero-based
-                columnNum = adjustForUTF8(lineText, columnNum);
-                columnNum = adjustForTabs(lineText, columnNum);
-                columnNum++;    // back to one-based
+        try {
+            if (lineNum > 0 && url != null) {
+                VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(url);
+                Document document = file == null ? null : FileDocumentManager.getInstance().getDocument(file);
+                if (document != null) {
+                    String lineText = getLineText(lineNum, document);
+                    columnNum--;    // make it zero-based
+                    columnNum = adjustForUTF8(lineText, columnNum);
+                    columnNum = adjustForTabs(lineText, columnNum);
+                    columnNum++;    // back to one-based
+                }
             }
+            context.addMessage(category, message, url, lineNum, columnNum);
+        } catch (Exception e) {
+            LOG.warn(e);
         }
-        context.addMessage(category, message, url, lineNum, columnNum);
     }
 
     private String getLineText(int lineNum, Document document) {
@@ -158,7 +183,7 @@ public class TwelfOutputParser implements Runnable {
          * Sometimes Twelf reports errors after the line end, maybe because of some presumed EOF or \0
          * character at the end
          */
-        text += " ";
+        offset = Math.min(offset, text.length());
         return EditorUtil.calcColumnNumber(null, text, 0, offset, tabSize);
     }
 

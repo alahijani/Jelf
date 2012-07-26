@@ -3,8 +3,12 @@ package org.alahijani.lf.compiler;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.util.ProgressIndicatorBase;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.ex.ProgressIndicatorEx;
+import org.alahijani.lf.settings.TwelfPluginSettings;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +23,6 @@ import java.util.concurrent.Future;
 public class TwelfServer {
     static final Logger LOG = Logger.getInstance("#org.alahijani.lf.compiler.TwelfServer");
 
-    private static final String TWELF_SERVER = "\\Program Files\\Twelf\\bin\\twelf-server.bat";
     private Process process;
     private Future<?> future;
     private Writer out;
@@ -29,14 +32,27 @@ public class TwelfServer {
         this.out = new OutputStreamWriter(process.getOutputStream());
         TwelfOutputParser outputParser = new TwelfOutputParser(project, context, process.getInputStream());
         this.future = ApplicationManager.getApplication().executeOnPooledThread(outputParser);
-    }
 
-    private static String getTwelfServer() {
-        return TWELF_SERVER;
+        ProgressIndicator progress = context.getProgressIndicator();
+        if (progress instanceof ProgressIndicatorEx) {
+            ((ProgressIndicatorEx) progress).addStateDelegate(new ProgressIndicatorBase() {
+                @Override
+                public void stop() {
+                    super.stop();
+                    destroy();
+                }
+
+                @Override
+                public void cancel() {
+                    super.cancel();
+                    destroy();
+                }
+            });
+        }
     }
 
     public static TwelfServer createTwelfServer(Project project, CompileContext context) throws IOException {
-        Process process = Runtime.getRuntime().exec(getTwelfServer());
+        Process process = Runtime.getRuntime().exec(TwelfPluginSettings.getTwelfServer());
         return new TwelfServer(project, process, context);
     }
 
