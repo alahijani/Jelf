@@ -1,0 +1,26 @@
+Jelf is a an IntelliJ IDEA plugin for the Twelf.
+  - IntelliJ IDEA is an open source IDE mostly popular with Java programmers.
+  - Twelf is an implementation of the LF logical framework, the Elf constraint logic programming
+    language and a meta-theorem prover for LF.
+
+Jelf currently implements the following features, though they are far from bug-free yet:
+  - Syntax highlighting
+  - On-the-fly reporting of syntax errors
+  - Indexing and search on Twelf declarations and files
+  - Code completion
+  - Go-to-declaration action
+  - Renaming of declarations
+  - Twelf compile and error reporting
+
+The following IntelliJ IDEA shortcuts currently work on Twelf files and declarations:
+  - Ctrl+Space (Code completion)
+  - Ctrl+B, Ctrl+Click (Go to declaration)
+  - Alt+F7 (Find usages)
+  - Ctrl+Shift+F7 (Highlight usages)
+  - Shift+F6 (Rename)
+  - Ctrl+W, Ctrl+Shift+W (Select code fragment)
+  - Alt+Up Arrow, Alt+Down Arrow (Previous/next declaration)
+  - Alt+Delete (Safe delete)
+  - Ctrl+Alt+N (Inline declaration)
+  - Ctrl+F12 (File structure)
+  - Ctrl+Shift+F9 (Compile -- feed file as input to Twelf)
