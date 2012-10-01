@@ -167,7 +167,17 @@ public class TwelfParameterInfoHandler implements ParameterInfoHandler/*WithTabA
         //     buffer.append(" -> ");
         // } else {
         buffer.append("{");
-        buffer.append(param.getText());
+        buffer.append(param.getName());
+
+        LfTerm type = param.getType();
+        while (type instanceof WrappingTerm) {
+            type = ((WrappingTerm) type).getWrapped();
+        }
+        if (type != null) {
+            buffer.append(": ");
+            buffer.append(type.getText());
+        }
+
         buffer.append("} ");
         // }
     }

@@ -19,7 +19,10 @@
       <entry name="?*.ftl" />
       <entry name="?*.ico" />
     </wildcardResourcePatterns>
-    <annotationProcessing enabled="false" useClasspath="true" />
+    <annotationProcessing enabled="true" useClasspath="true">
+      <processor name="github.alahijani.lang.AnnotationProcessing" options="a=b" />
+      <processor name="checkers.nullness.NullnessChecker" options="" />
+    </annotationProcessing>
   </component>
 </project>
 

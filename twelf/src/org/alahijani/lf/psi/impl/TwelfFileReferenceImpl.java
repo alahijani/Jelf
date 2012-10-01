@@ -16,7 +16,7 @@ public class TwelfFileReferenceImpl extends TwelfIdentifierReferenceImpl<TwelfFi
     }
 
     public TwelfFile resolve() {
-        return (TwelfFile) getManager().getResolveCache().resolveWithCaching(this, RESOLVER, true, false);
+        return (TwelfFile) ResolveCache.getInstance(getProject()).resolveWithCaching(this, RESOLVER, true, false);
     }
 
     private static final ResolveCache.Resolver RESOLVER = new ResolveCache.Resolver() {

@@ -1,9 +1,6 @@
 package org.alahijani.lf;
 
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.psi.impl.source.tree.ChangeUtil;
-import org.alahijani.lf.psi.tree.TwelfChangeUtilSupport;
-import org.alahijani.lf.psi.tree.TwelfTreeGenerator;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -14,8 +11,8 @@ public class TwelfLoader implements ApplicationComponent {
     public void initComponent() {
 //        TwelfEditorActionsManager.registerTwelfEditorActions();
 
-        ChangeUtil.registerCopyHandler(new TwelfChangeUtilSupport());
-        ChangeUtil.registerTreeGenerator(new TwelfTreeGenerator());
+//        ChangeUtil.registerCopyHandler(new TwelfChangeUtilSupport());
+//        ChangeUtil.registerTreeGenerator(new TwelfTreeGenerator());
 
         //Register Keyword completion
 //        setupCompletion();

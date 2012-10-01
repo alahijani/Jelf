@@ -48,8 +48,8 @@ public class TwelfFileType extends LanguageFileType {
         return false;
     }
 
-    @Override
-    public EditorHighlighter getEditorHighlighter(@Nullable Project project, @Nullable VirtualFile virtualFile, @NotNull EditorColorsScheme colors) {
-        return new TwelfEditorHighlighter(colors, project, virtualFile);
-    }
+//    @Override
+//    public EditorHighlighter getEditorHighlighter(@Nullable Project project, @Nullable VirtualFile virtualFile, @NotNull EditorColorsScheme colors) {
+//        return new TwelfEditorHighlighter(colors, project, virtualFile);
+//    }
 }

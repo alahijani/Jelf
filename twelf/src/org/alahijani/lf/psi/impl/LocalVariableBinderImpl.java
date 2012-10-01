@@ -2,6 +2,7 @@ package org.alahijani.lf.psi.impl;
 
 import com.intellij.lang.ASTNode;
 import org.alahijani.lf.psi.api.LfLocalVariable;
+import org.alahijani.lf.psi.api.LfTerm;
 import org.alahijani.lf.psi.api.LocalVariableBinder;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,5 +17,9 @@ public class LocalVariableBinderImpl extends TwelfElementImpl implements LocalVa
 
     public LfLocalVariable getBoundDeclaration() {
         return findChildByClass(LfLocalVariable.class);
+    }
+
+    public LfTerm getBody() {
+        return findChildByClass(LfTerm.class);
     }
 }

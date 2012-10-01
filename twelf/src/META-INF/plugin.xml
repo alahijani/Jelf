@@ -47,8 +47,13 @@
 
         <compiler implementation="org.alahijani.lf.compiler.TwelfCompiler"/>
         <completion.contributor language="Twelf" implementationClass="org.alahijani.lf.completion.TwelfCompletionContributor"/>
+        <gotoSymbolContributor implementation="org.alahijani.lf.navigation.TwelfNameContributor"/>
+
+        <refactoring.inlineHandler language="Twelf" implementationClass="org.alahijani.lf.refactor.TwelfInlineActionHandler" />
+
+        <!--<referencesSearch implementation="org.alahijani.lf.search.TwelfReferencesSearcher"/>-->
+
         <!--<completion.contributor language="Twelf" implementationClass="org.alahijani.lf.completion.TwelfSmartCompletionContributor"/>-->
-        <!--<gotoSymbolContributor implementation="org.alahijani.lf.gotoclass.TwelfGoToSymbolContributor"/>-->
         <!--<enterHandlerDelegate implementation="org.alahijani.lf.lang.editor.actions.TwelfEnterHandler" order="after EnterBetweenBracesHandler"/>-->
         <!--<renameHandler implementation="org.alahijani.lf.refactoring.rename.PropertyRenameHandler"/>-->
         <!--<renamePsiElementProcessor implementation="org.alahijani.lf.refactoring.rename.RenameTwelfPropertyProcessor" order="first"/>-->

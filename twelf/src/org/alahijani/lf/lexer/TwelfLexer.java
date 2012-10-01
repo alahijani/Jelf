@@ -19,9 +19,9 @@ public class TwelfLexer extends AbstractCustomLexer {
         ArrayList<TokenParser> parsers = new ArrayList<TokenParser>();
 
         parsers.add(new WhitespaceParser());
-        parsers.add(LineCommentParser.create("%%"));
-        parsers.add(LineCommentParser.create("%\t"));
-        parsers.add(LineCommentParser.create("% "));                    // todo maybe % followed by any whitespace?
+        parsers.add(new LineCommentParser("%%", false));
+        parsers.add(new LineCommentParser("%\t", false));
+        parsers.add(new LineCommentParser("% ", false));                    // todo maybe % followed by any whitespace?
         parsers.add(new LineNoCommentParser("%"));
         parsers.add(MultilineCommentParser.create("%{", "}%"));
         parsers.add(new EndOfFileCommentParser("%."));
@@ -77,5 +77,47 @@ public class TwelfLexer extends AbstractCustomLexer {
 
     public static boolean isAnonymousIdentifier(String text) {
         return "_".equals(text);
+    }
+
+    public void rethrow(Throwable e) {
+             if (e instanceof Error) throw ((Error) e);
+        else if (e instanceof RuntimeException) throw ((RuntimeException) e);
+        else throw new AssertionError(e);
+    }
+
+    public <E1 extends Throwable>
+    void rethrow(Throwable e,
+                 Class<E1> expected1) throws E1 {
+             if (e instanceof Error) throw ((Error) e);
+        else if (e instanceof RuntimeException) throw ((RuntimeException) e);
+        else if (expected1.isInstance(e)) throw expected1.cast(e);
+        else throw new AssertionError(e);
+    }
+
+    public <E1 extends Throwable,
+            E2 extends Throwable>
+    void rethrow(Throwable e,
+                 Class<E1> expected1,
+                 Class<E2> expected2) throws E1, E2 {
+             if (e instanceof Error) throw ((Error) e);
+        else if (e instanceof RuntimeException) throw ((RuntimeException) e);
+        else if (expected1.isInstance(e)) throw expected1.cast(e);
+        else if (expected2.isInstance(e)) throw expected2.cast(e);
+        else throw new AssertionError(e);
+    }
+
+    public <E1 extends Throwable,
+            E2 extends Throwable,
+            E3 extends Throwable>
+    void rethrow(Throwable e,
+                 Class<E1> expected1,
+                 Class<E2> expected2,
+                 Class<E3> expected3) throws E1, E2, E3 {
+             if (e instanceof Error) throw ((Error) e);
+        else if (e instanceof RuntimeException) throw ((RuntimeException) e);
+        else if (expected1.isInstance(e)) throw expected1.cast(e);
+        else if (expected2.isInstance(e)) throw expected2.cast(e);
+        else if (expected3.isInstance(e)) throw expected3.cast(e);
+        else throw new AssertionError(e);
     }
 }

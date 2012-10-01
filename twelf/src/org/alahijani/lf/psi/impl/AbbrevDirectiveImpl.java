@@ -15,6 +15,8 @@ import java.util.Map;
 
 /**
  * @author Ali Lahijani
+ * todo BUG: AbbrevDirectiveImpl should not implement LfTerm!
+ * replace inheritance with association
  */
 public class AbbrevDirectiveImpl extends TwelfDirectiveImpl implements GlobalVariableBinder {
 

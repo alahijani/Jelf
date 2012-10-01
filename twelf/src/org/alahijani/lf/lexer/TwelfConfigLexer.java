@@ -20,7 +20,7 @@ public class TwelfConfigLexer extends AbstractCustomLexer {
         ArrayList<TokenParser> parsers = new ArrayList<TokenParser>();
 
         parsers.add(new WhitespaceParser());
-        parsers.add(LineCommentParser.create("%"));
+        parsers.add(new LineCommentParser("%", false));
         parsers.add(new FileNameTokenParser());
 
         return parsers;

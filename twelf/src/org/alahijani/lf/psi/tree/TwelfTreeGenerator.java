@@ -7,8 +7,7 @@ import com.intellij.psi.impl.source.tree.TreeElement;
 import com.intellij.psi.impl.source.tree.TreeGenerator;
 import com.intellij.util.CharTable;
 import org.alahijani.lf.lang.TwelfTokenType;
-import org.alahijani.lf.psi.light.LightIdentifier;
-import org.alahijani.lf.psi.light.LightLfDeclaration;
+import org.alahijani.lf.psi.light.TwelfLightElement;
 
 /**
  * @author Ali Lahijani
@@ -16,10 +15,7 @@ import org.alahijani.lf.psi.light.LightLfDeclaration;
 public class TwelfTreeGenerator implements TreeGenerator {
 
     public TreeElement generateTreeFor(PsiElement original, CharTable table, PsiManager manager) {
-        if (original instanceof LightIdentifier) {
-            return Factory.createSingleLeafElement(TwelfTokenType.PLACEHOLDER, "", table, manager);
-        }
-        if (original instanceof LightLfDeclaration) {
+        if (original instanceof TwelfLightElement) {
             return Factory.createSingleLeafElement(TwelfTokenType.PLACEHOLDER, "", table, manager);
         }
         return null;
