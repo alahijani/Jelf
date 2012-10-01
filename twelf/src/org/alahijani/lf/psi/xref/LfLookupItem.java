@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author Ali Lahijani
  */
-public class LfLookupItem extends LookupElement {
+public class LfLookupItem extends LookupElement /*implements TypedLookupItem*/ {
 
     private ReferableElement declaration;
     private int order = Integer.MAX_VALUE;

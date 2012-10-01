@@ -1,38 +1,35 @@
 package org.alahijani.lf.completion;
 
 import com.intellij.codeInsight.completion.*;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.patterns.ElementPattern;
+import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
-import org.alahijani.lf.psi.api.*;
+import org.alahijani.lf.lang.TwelfTokenType;
+import org.alahijani.lf.psi.api.LfGlobalVariable;
+import org.alahijani.lf.psi.api.LfIdentifierReference;
+import org.alahijani.lf.psi.api.TwelfBaseElement;
+import org.alahijani.lf.psi.api.TwelfIdentifier;
 import org.alahijani.lf.psi.xref.Referencing;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
+import static com.intellij.patterns.StandardPatterns.or;
 
 /**
  * @author Ali Lahijani
  */
 public class TwelfCompletionContributor extends CompletionContributor {
 
-/*
-    private static final ElementPattern<PsiElement> AFTER_NEW =
-            psiElement().afterLeaf(psiElement()
-                    .withText(PsiKeyword.NEW)
-                    .andNot(psiElement().afterLeaf(psiElement().withText(PsiKeyword.THROW))))
-                    .withSuperParent(3, TwelfVariable.class);
-*/
-
-    private static final ElementPattern<PsiElement> AFTER_COLON = psiElement().afterLeaf(":").withParent(LfDeclaration.class);
-
-    private static final ElementPattern<PsiElement> AFTER_TERM = psiElement().afterSibling(psiElement(LfTerm.class));
-
     public TwelfCompletionContributor() {
-        extend(CompletionType.BASIC, psiElement(PsiElement.class), new CompletionProvider<CompletionParameters>() {
+        @SuppressWarnings({"unchecked"}) PsiElementPattern.Capture<PsiElement> idRef =
+                psiElement(TwelfTokenType.IDENT).withParents(TwelfIdentifier.class, LfIdentifierReference.class);
+        extend(CompletionType.BASIC, idRef, new CompletionProvider<CompletionParameters>() {
             @Override
             protected void addCompletions(@NotNull CompletionParameters parameters,
                                           ProcessingContext context,
-                                          @NotNull final CompletionResultSet result) {
+                                          @NotNull CompletionResultSet result) {
 
                 final PsiElement position = parameters.getPosition();
                 final PsiElement reference = position.getParent();
@@ -43,85 +40,47 @@ public class TwelfCompletionContributor extends CompletionContributor {
             }
         });
 
-        extend(CompletionType.BASIC, AFTER_COLON, new CompletionProvider<CompletionParameters>() {
+        PsiElementPattern.Capture<PsiElement> directiveStart = psiElement(TwelfTokenType.DIRECTIVE);
+        @SuppressWarnings({"unchecked"}) PsiElementPattern.Capture<PsiElement> globalStart =
+                psiElement().withParents(TwelfIdentifier.class, LfGlobalVariable.class);
+        @SuppressWarnings({"unchecked"}) ElementPattern<PsiElement> statementStart =
+                or(globalStart, directiveStart);
+        extend(CompletionType.BASIC, statementStart, new CompletionProvider<CompletionParameters>() {
             @Override
             protected void addCompletions(@NotNull CompletionParameters parameters,
                                           ProcessingContext context,
                                           @NotNull CompletionResultSet result) {
-                System.out.println("parameters = " + parameters);
 
+                if (parameters.getPosition().getNode().getElementType() == TwelfTokenType.DIRECTIVE) {
+                    result = result.withPrefixMatcher("%" + result.getPrefixMatcher().getPrefix());
+                }
+                for (String directive : TwelfTokenType.DIRECTIVES) {
+                    result.addElement(LookupElementBuilder.create(directive).setBold());
+                }
             }
         });
 
-        extend(CompletionType.BASIC, AFTER_TERM, new CompletionProvider<CompletionParameters>() {
+        extend(CompletionType.BASIC, psiElement().afterLeaf("%infix"), new CompletionProvider<CompletionParameters>() {
+            @Override
+            protected void addCompletions(@NotNull CompletionParameters parameters, ProcessingContext context, @NotNull CompletionResultSet result) {
+                result.addElement(LookupElementBuilder.create("right").setBold());
+                result.addElement(LookupElementBuilder.create("left").setBold());
+                result.addElement(LookupElementBuilder.create("none").setBold());
+            }
+        });
+
+        extend(CompletionType.BASIC, psiElement(), new CompletionProvider<CompletionParameters>() {
             @Override
             protected void addCompletions(@NotNull CompletionParameters parameters,
                                           ProcessingContext context,
                                           @NotNull CompletionResultSet result) {
-                System.out.println("parameters = " + parameters);
-/*
-                final TwelfIdentifierReference refExpr = ((TwelfIdentifierReference) parameters.getPosition().getParent());
-                if (refExpr.getQualifier() != null) return;
-                final TwelfArgumentList argumentList = (TwelfArgumentList) refExpr.getParent();
-                final TwelfCall call = (TwelfCall) argumentList.getParent();
-                List<TwelfResolveResult> results = new ArrayList<TwelfResolveResult>();
-                //costructor call
-                if (call instanceof TwelfConstructorCall) {
-                    TwelfConstructorCall constructorCall = (TwelfConstructorCall) call;
-                    results.addAll(Arrays.asList(constructorCall.multiResolveConstructor()));
-                    results.addAll(Arrays.asList(constructorCall.multiResolveClass()));
-                } else if (call instanceof ApplicationExpression) {
-                    ApplicationExpression constructorCall = (ApplicationExpression) call;
-                    results.addAll(Arrays.asList(constructorCall.getMethodVariants()));
-                    final PsiType type = ((ApplicationExpression) call).getType();
-                    if (type instanceof PsiClassType) {
-                        final PsiClass psiClass = ((PsiClassType) type).resolve();
-                        results.add(new TwelfResolveResultImpl(psiClass, true));
-                    }
-                } else if (call instanceof TwelfApplicationStatement) {
-                    final TwelfExpression element = ((TwelfApplicationStatement) call).getFunExpression();
-                    if (element instanceof TwelfReferenceElement) {
-                        results.addAll(Arrays.asList(((TwelfReferenceElement) element).multiResolve(true)));
-                    }
-                }
 
-                Set<PsiClass> usedClasses = new HashSet<PsiClass>();
-                Set<String> usedNames = new HashSet<String>();
-                for (TwelfNamedArgument argument : argumentList.getNamedArguments()) {
-                    final TwelfArgumentLabel label = argument.getLabel();
-                    if (label != null) {
-                        final String name = label.getName();
-                        if (name != null) {
-                            usedNames.add(name);
-                        }
-                    }
-                }
-
-                for (TwelfResolveResult resolveResult : results) {
-                    PsiElement element = resolveResult.getElement();
-                    if (element instanceof PsiMethod) {
-                        final PsiMethod method = (PsiMethod) element;
-                        final PsiClass containingClass = method.getContainingClass();
-                        if (containingClass != null) {
-                            addPropertiesForClass(result, usedClasses, usedNames, containingClass, call);
-                        }
-                        if (method instanceof TwelfMethod) {
-                            Set<String>[] parametersArray = ((TwelfMethod) method).getNamedParametersArray();
-                            for (Set<String> namedParameters : parametersArray) {
-                                for (String parameter : namedParameters) {
-                                    final LookupElementBuilder lookup =
-                                            LookupElementBuilder.create(parameter).setIcon(TwelfIcons.DYNAMIC).setInsertHandler(new NamedArgumentInsertHandler());
-                                    result.addElement(lookup);
-                                }
-                            }
-                        }
-                    } else if (element instanceof PsiClass) {
-                        addPropertiesForClass(result, usedClasses, usedNames, (PsiClass) element, call);
-                    }
-                }
-*/
+                final PsiElement position = parameters.getPosition();
+                String s = position.toString();
             }
         });
+
+
     }
 
     @Override

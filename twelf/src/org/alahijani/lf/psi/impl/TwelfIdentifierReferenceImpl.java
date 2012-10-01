@@ -125,12 +125,20 @@ public abstract class TwelfIdentifierReferenceImpl<Referable extends ReferableEl
     @SuppressWarnings({"unchecked"})
     public Referable resolve() {
         ResolveResult[] results = multiResolve(false);
-        return results.length == 1 ? (Referable) results[0].getElement() : null;
+
+        if (results.length == 1) {
+            ResolveResult result = results[0];
+            if (result.isValidResult()) {
+                return (Referable) result.getElement();
+            }
+        }
+
+        return null;
     }
 
     @NotNull
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        return getManager().getResolveCache().resolveWithCaching(this, POLY_VARIANT_RESOLVER, true, incompleteCode);
+        return ResolveCache.getInstance(getProject()).resolveWithCaching(this, POLY_VARIANT_RESOLVER, true, incompleteCode);
     }
 
     private static final ResolveCache.PolyVariantResolver<TwelfIdentifierReferenceImpl> POLY_VARIANT_RESOLVER = new ResolveCache.PolyVariantResolver<TwelfIdentifierReferenceImpl>() {

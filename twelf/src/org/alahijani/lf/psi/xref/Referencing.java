@@ -6,17 +6,17 @@ import com.intellij.codeInsight.completion.CompletionSorter;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.lookup.LookupElementWeigher;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementResolveResult;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.ResolveResult;
-import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.*;
+import com.intellij.util.Processor;
+import com.intellij.util.indexing.FileBasedIndex;
 import org.alahijani.lf.lexer.TwelfLexer;
 import org.alahijani.lf.psi.TwelfElementVisitor;
 import org.alahijani.lf.psi.api.*;
 import org.alahijani.lf.psi.stubs.index.LfGlobalVariableIndex;
-import org.alahijani.lf.psi.stubs.index.TwelfConfigFileIndex;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -24,9 +24,34 @@ import java.util.*;
  * @author Ali Lahijani
  */
 public class Referencing {
+    static final Logger LOG = Logger.getInstance("#org.alahijani.lf.psi.xref.Referencing");
+
+//    private static final AnnotationHolder CALLBACK = new AnnotationHolder() {
+//        public Annotation createErrorAnnotation(@NotNull PsiElement elt, @Nullable String message) { return null; }
+//        public Annotation createErrorAnnotation(@NotNull ASTNode node, @Nullable String message) { return null; }
+//        public Annotation createErrorAnnotation(@NotNull TextRange range, @Nullable String message) { return null; }
+//        public Annotation createWarningAnnotation(@NotNull PsiElement elt, @Nullable String message) { return null; }
+//        public Annotation createWarningAnnotation(@NotNull ASTNode node, @Nullable String message) { return null; }
+//        public Annotation createWarningAnnotation(@NotNull TextRange range, @Nullable String message) { return null; }
+//        public Annotation createInformationAnnotation(@NotNull PsiElement elt, @Nullable String message) { return null; }
+//        public Annotation createInformationAnnotation(@NotNull ASTNode node, @Nullable String message) { return null; }
+//        public Annotation createInformationAnnotation(@NotNull TextRange range, String message) { return null; }
+//        public Annotation createWeakWarningAnnotation(@NotNull PsiElement psiElement, @Nullable String s) { return null; }
+//        public Annotation createWeakWarningAnnotation(@NotNull ASTNode node, @Nullable String s) { return null; }
+//        public Annotation createWeakWarningAnnotation(@NotNull TextRange textRange, @Nullable String s) { return null; }
+//        public Annotation createInfoAnnotation(@NotNull PsiElement elt, @Nullable String message) { return null; }
+//        public Annotation createInfoAnnotation(@NotNull ASTNode node, @Nullable String message) { return null; }
+//        public Annotation createInfoAnnotation(@NotNull TextRange range, @Nullable String message) { return null; }
+//        public AnnotationSession getCurrentAnnotationSession() { return null; }
+//    };
 
     @NotNull
     public static ResolveResult[] multiResolveTarget(LfIdentifierReference reference) {
+        return multiResolveTarget(reference, null);
+    }
+
+    @NotNull
+    public static ResolveResult[] multiResolveTarget(LfIdentifierReference reference, @Nullable CodeInsightsHolder callback) {
         @NotNull String name = reference.getText();
 
         if (TwelfLexer.isAnonymousIdentifier(name)) {
@@ -42,7 +67,7 @@ public class Referencing {
             if (element instanceof LocalVariableBinder) {
                 LocalVariableBinder binder = (LocalVariableBinder) element;
                 LfLocalVariable local = binder.getBoundDeclaration();
-                if (local != beingDeclared && name.equals(local.getName())) {
+                if (local != beingDeclared && local != null && name.equals(local.getName())) {
                     return createValid(local);
                 }
                 continue;
@@ -61,17 +86,20 @@ public class Referencing {
             if (element instanceof TwelfStatement) {
                 TwelfFile userFile = (TwelfFile) element.getContainingFile();
 
-                LfGlobalVariable sameFile = getLastDeclaration(name, userFile, element.getTextOffset());
+                LfGlobalVariable sameFile = userFile.getLastDeclaration(name, element.getTextOffset(), callback);
                 if (sameFile != null) {
                     return createValid(sameFile);
                 }
 
-                Collection<TwelfConfigFile> configFiles =
-                        TwelfConfigFileIndex.getContainingTwelfConfigFiles(userFile.getName(), element.getResolveScope());
+                Collection<TwelfConfigFile> configFiles = userFile.getContainingConfigFiles();
 
                 if (configFiles.isEmpty()) {
                     if (meta == null) {
-                        return ResolveResult.EMPTY_ARRAY;
+                        // return ResolveResult.EMPTY_ARRAY;
+                        // there is no valid result but these invalid results may be helpful
+                        Collection<LfGlobalVariable> allInTheDirectory
+                                = LfGlobalVariableIndex.getLfGlobalVariables(name, element.getResolveScope(), element.getProject());
+                        return createInvalid(allInTheDirectory);
                     } else {
                         return createValid(meta);
                     }
@@ -79,11 +107,14 @@ public class Referencing {
 
                 ArrayList<PsiElement> results = new ArrayList<PsiElement>();
                 for (TwelfConfigFile configFile : configFiles) {
-                    LfDeclaration lastDeclaration = getLastDeclaration(name, configFile, userFile);
-                    if (lastDeclaration == null && meta != null) {
-                        lastDeclaration = meta;
+                    LfDeclaration lastDeclaration = configFile.getLastDeclaration(name, userFile, callback);
+                    if (lastDeclaration == null) {
+                        if (meta != null) {
+                            results.add(meta);
+                        }
+                    } else {
+                        results.add(lastDeclaration);
                     }
-                    results.add(lastDeclaration);
                 }
                 if (!results.isEmpty()) {
                     if (areElementsEquivalent(results)) {
@@ -128,111 +159,6 @@ public class Referencing {
         }
 
         return true;
-    }
-
-    private static LfGlobalVariable getLastDeclaration(String name, TwelfConfigFile configFile, TwelfFile beforeFile) {
-        TwelfFileReference[] memberFiles = configFile.getMemberFiles();
-        LfGlobalVariable result = null;
-        for (TwelfFileReference member : memberFiles) {
-            TwelfFile file = member.resolve();
-            if (file == null) {
-                continue;
-            }
-            if (PsiEquivalenceUtil.areElementsEquivalent(file, beforeFile)) {
-                break;
-            }
-            LfGlobalVariable lastDeclaration = getLastDeclaration(name, file, Integer.MAX_VALUE);
-            if (lastDeclaration != null) {
-                result = lastDeclaration;
-            }
-        }
-        return result;
-    }
-
-    private static LfGlobalVariable getLastDeclaration(String name, TwelfFile file, int beforeOffset) {
-        Collection<LfGlobalVariable> otherFileGlobals
-                = LfGlobalVariableIndex.getLfGlobalVariables(name, GlobalSearchScope.fileScope(file));
-
-        LfGlobalVariable best = null;
-        int bestOffset = -1;
-
-        for (LfGlobalVariable candidate : otherFileGlobals) {
-            int offset = candidate.getTextOffset();
-            if (bestOffset < offset && offset < beforeOffset) {
-                best = candidate;
-                bestOffset = offset;
-            }
-        }
-
-        return best;
-    }
-
-    @NotNull
-    public static ResolveResult[] multiResolveTarget_(TwelfIdentifierReference<LfDeclaration> reference) {
-        @NotNull String name = reference.getText();
-
-        if (TwelfLexer.isAnonymousIdentifier(name)) {
-            return new ResolveResult[0];    // TODO implement term reconstruction
-        }
-        boolean isUppercase = TwelfLexer.isUppercaseIdentifier(name);
-
-        LfMetaVariable meta = null;
-        LfDeclaration beingDeclared = null;
-
-        for (PsiElement element = reference; true; element = element.getParent()) {
-
-            if (element instanceof LocalVariableBinder) {
-                LocalVariableBinder binder = (LocalVariableBinder) element;
-                LfLocalVariable local = binder.getBoundDeclaration();
-                if (local != beingDeclared && name.equals(local.getName())) {
-                    return createValid(local);
-                }
-                continue;
-            }
-            if (element instanceof LfDeclaration) {
-                beingDeclared = (LfDeclaration) element;
-                continue;
-            }
-            if (isUppercase && element instanceof MetaVariableBinder) {
-                MetaVariableBinder binder = (MetaVariableBinder) element;
-                meta = binder.getProvisionalMeta(name);
-                if (meta.isCommitted()) {                           // todo: buggy optimization!
-                    return new ResolveResult[]{new PsiElementResolveResult(meta)};
-                }
-                /**
-                 * should also check TwelfStatement, so no continue
-                 */
-            }
-            if (element instanceof TwelfStatement) {
-                Collection<LfGlobalVariable> globals = LfGlobalVariableIndex.getLfGlobalVariables(name, reference.getResolveScope());
-
-                ArrayList<PsiElementResolveResult> results = new ArrayList<PsiElementResolveResult>(globals.size() + 1);
-                for (LfGlobalVariable global : globals) {
-                    results.add(new PsiElementResolveResult(global, canReference((TwelfStatement) element, global)));
-                }
-                if (meta != null) {
-                    results.add(new PsiElementResolveResult(meta));
-                }
-
-                return results.toArray(new ResolveResult[results.size()]);
-            }
-            if (element == null || element instanceof PsiFile) return ResolveResult.EMPTY_ARRAY;
-        }
-    }
-
-    private static boolean canReference(TwelfStatement position, LfGlobalVariable global) {
-        TwelfFile twelf = position.getContainingFile();
-        if (PsiEquivalenceUtil.areElementsEquivalent(twelf, global.getContainingFile())) {
-            return position.getTextOffset() > global.getTextOffset();
-        }
-
-        Collection<TwelfConfigFile> configFiles =
-                TwelfConfigFileIndex.getContainingTwelfConfigFiles(twelf.getName(), twelf.getResolveScope());
-        boolean can = true;
-        for (TwelfConfigFile configFile : configFiles) {
-            can &= configFile.canReference(twelf, global.getContainingFile());
-        }
-        return can;
     }
 
     public static void lookup(PsiElement element, CompletionResultSet result) {
@@ -324,12 +250,66 @@ public class Referencing {
                     return 0;
                 }
             });
+    private static final CompletionSorter ByReverseOrderOfDeclaration_ =
+            CompletionSorter.emptySorter().weigh(new LookupElementWeigher("Twelf.byReverseOrderOfDeclaration") {
+                @NotNull
+                @Override
+                public Comparable weigh(@NotNull LookupElement lookupElement) {
+                    if (lookupElement instanceof LfLookupItem) {
+                        return ((LfLookupItem) lookupElement).getDeclaration().getTextOffset();
+                    }
+                    return 0;
+                }
+            });
 
     public static void rename(TwelfIdentifier identifier, String newElementName) {
         if (identifier != null) {
             identifier.setText(newElementName);
         }
     }
+
+    // -------------------------------------------------------------------------------------------------
+
+    void _(final TwelfElement element, final CompletionResultSet resultSet) {
+
+        final CompletionResultSet result = resultSet.withRelevanceSorter(ByReverseOrderOfDeclaration_);
+
+        final TwelfFile twelfFile = (TwelfFile) element.getContainingFile();
+        final PsiManager psiManager = twelfFile.getManager();
+
+        twelfFile.getAllDeclarations(new Processor<LfGlobalVariable>() {
+            public boolean process(LfGlobalVariable variable) {
+                if (variable.getTextOffset() < element.getTextOffset()) {
+                    result.addElement(new LfLookupItem(variable));
+                }
+
+                return true;
+            }
+        });
+
+        twelfFile.getContainingConfigFiles(new FileBasedIndex.ValueProcessor<Integer>() {
+            public boolean process(VirtualFile file, Integer index) {
+                PsiFile psiFile = psiManager.findFile(file);
+                if (!(psiFile instanceof TwelfConfigFile)) {
+                    LOG.warn("Expected TwelfConfigFile, found " + psiFile);
+                    return true;
+                }
+
+                TwelfConfigFile configFile = (TwelfConfigFile) psiFile;
+
+                TwelfFileReference[] memberFiles = configFile.getMemberFiles();
+                for (int i = 0; i < index; i++) {
+                    TwelfFileReference fileReference = memberFiles[i];
+                    TwelfFile resolve = fileReference.resolve();
+                    if (resolve != null) {
+                        // todo resolve.get
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
 }
 
 
