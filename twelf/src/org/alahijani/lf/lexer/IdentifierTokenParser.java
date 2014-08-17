@@ -43,11 +43,11 @@ public class IdentifierTokenParser extends com.intellij.ide.highlighter.custom.t
         return tokenType;
     }
 
-    private static boolean isIdentifierStart(char ch) {
+    private boolean isIdentifierStart(char ch) {
         return isIdentifierPart(ch) || ch == '%';
     }
 
-    protected static boolean isIdentifierPart(char ch) {
+    protected boolean isIdentifierPart(char ch) {
         return !TwelfLexer.isReserved(ch) && !TwelfLexer.isWhitespace(ch);
     }
 
@@ -57,7 +57,13 @@ public class IdentifierTokenParser extends com.intellij.ide.highlighter.custom.t
         }
     }
 
+    private static IdentifierTokenParser parser = new IdentifierTokenParser();
+
     public static boolean isIdentifier(String text) {
+        return parser.isIdentifierText(text);
+    }
+
+    public boolean isIdentifierText(String text) {
         if (text.isEmpty()) {
             return false;
         }
