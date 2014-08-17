@@ -1,5 +1,5 @@
 <idea-plugin version="2">
-    <name>Jelf for Twelf</name>
+    <name>Twelf Plugin</name>
     <description>Jelf adds Twelf language support to IntelliJ IDEA. Features include syntax highlighting,
         on-the-fly reporting of syntax errors, indexing and search on Twelf declarations and files, code
         completion, go-to-declaration action, renaming of declarations, twelf compile and error reporting.
