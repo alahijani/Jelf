@@ -1,4 +1,4 @@
-Jelf is a an IntelliJ IDEA plugin for the Twelf.
+Jelf is a an IntelliJ IDEA plugin for the Twelf system.
   - IntelliJ IDEA is an open source IDE mostly popular with Java programmers.
   - Twelf is an implementation of the LF logical framework, the Elf constraint logic programming
     language and a meta-theorem prover for LF.
