@@ -7,7 +7,7 @@ import com.intellij.psi.PsiBundle;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.NonClasspathDirectoryScope;
+import com.intellij.psi.search.NonClasspathDirectoriesScope;
 import com.intellij.psi.search.SearchScope;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.Collections;
 
 /**
  * @author Ali Lahijani
@@ -127,7 +128,7 @@ public class LfGlobalVariableImpl extends TwelfStubBasedElementImpl<LfGlobalVari
         PsiDirectory directory = getContainingFile().getContainingDirectory();
         return directory == null
                 ? GlobalSearchScope.allScope(getProject())
-                : new NonClasspathDirectoryScope(directory.getVirtualFile());
+                : new NonClasspathDirectoriesScope(Collections.singleton((directory.getVirtualFile())));
     }
 
     public TwelfBaseElement getVirtualParent() {

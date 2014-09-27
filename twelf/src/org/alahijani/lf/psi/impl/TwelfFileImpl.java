@@ -5,7 +5,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.NonClasspathDirectoryScope;
+import com.intellij.psi.search.NonClasspathDirectoriesScope;
 import com.intellij.psi.search.SearchScope;
 import com.intellij.util.Processor;
 import com.intellij.util.indexing.FileBasedIndex;
@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 /**
@@ -64,7 +65,7 @@ public class TwelfFileImpl extends PsiFileBase implements TwelfFile {
         PsiDirectory directory = getContainingDirectory();
         return directory == null
                 ? GlobalSearchScope.allScope(getProject())
-                : new NonClasspathDirectoryScope(directory.getVirtualFile());
+                : new NonClasspathDirectoriesScope(Collections.singleton((directory.getVirtualFile())));
     }
 
     public boolean getAllDeclarations(Processor<LfGlobalVariable> processor) {

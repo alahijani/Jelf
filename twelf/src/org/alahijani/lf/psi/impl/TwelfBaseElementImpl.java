@@ -7,11 +7,13 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.NonClasspathDirectoryScope;
+import com.intellij.psi.search.NonClasspathDirectoriesScope;
 import com.intellij.psi.stubs.StubElement;
 import org.alahijani.lf.psi.api.TwelfBaseElement;
 import org.alahijani.lf.psi.util.TwelfPsiUtil;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
 
 /**
  * @author Ali Lahijani
@@ -35,7 +37,7 @@ public abstract class TwelfBaseElementImpl extends StubBasedPsiElementBase<StubE
         PsiDirectory directory = getContainingFile().getContainingDirectory();
         return directory == null
                 ? GlobalSearchScope.allScope(getProject())
-                : new NonClasspathDirectoryScope(directory.getVirtualFile());
+                : new NonClasspathDirectoriesScope(Collections.singleton(directory.getVirtualFile()));
     }
 
     public TwelfBaseElement getVirtualParent() {
